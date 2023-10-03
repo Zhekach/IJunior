@@ -43,7 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArraySort.cs" />
+    <Compile Include="DynamicArray.cs" />
+    <Compile Include="LocalMaximum.cs" />
     <Compile Include="MaxElement.cs" />
+    <Compile Include="RepeatInArray.cs" />
+    <Compile Include="ShiftArray.cs" />
+    <Compile Include="Split.cs" />
     <Compile Include="WorkWithRowsColumns.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
