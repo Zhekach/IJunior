@@ -14,9 +14,9 @@ namespace Homework3
             char splitChar = ' ';
             string[] split = testString.Split(splitChar);
 
-            foreach (var item in split)
+            foreach (var word in split)
             {
-                Console.WriteLine(item);
+                Console.WriteLine(word);
             }
         }
     }

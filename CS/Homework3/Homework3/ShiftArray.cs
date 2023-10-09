@@ -8,21 +8,22 @@ namespace Homework3
 {
     internal class ShiftArray
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
-            int[] testArray = { 1, 2, 3, 4, 5, };
+            int[] testArray = { 1, 2, 3, 4, 5};
             int shiftsCount = 0;
 
             Console.WriteLine("Base array:");
 
-            foreach (var item in testArray)
+            foreach (var integer in testArray)
             {
-                Console.Write(item + " ");
+                Console.Write(integer + " ");
             }
 
             Console.Write("\nEnter count of shifts: ");
 
             shiftsCount = Convert.ToInt32(Console.ReadLine());
+            shiftsCount = shiftsCount % testArray.Length;
 
             Console.WriteLine("\nShifted array:");
 
@@ -38,9 +39,9 @@ namespace Homework3
                 testArray[testArray.Length - 1] = tempValue;
             }
 
-            foreach (var item in testArray)
+            foreach (var integer in testArray)
             {
-                Console.Write(item + " ");
+                Console.Write(integer + " ");
             }
         }
     }

@@ -12,12 +12,13 @@ namespace Homework3
         {
             const string SumCommand = "sum";
             const string ExitCommand = "exit";
+
             int[] dynamicArray = new int[0];
             bool isProgramOpen = true;
 
             Console.WriteLine("Enter integer value to add it to the array.\n" +
-                "Enter \"sum\" to show sum of current elements.\n" +
-                "Enter \"exit\" to close program.");
+                $"Enter \"{SumCommand}\" to show sum of current elements.\n" +
+                $"Enter \"{ExitCommand}\" to close program.");
 
             while (isProgramOpen)
             {
