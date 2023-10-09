@@ -8,7 +8,7 @@ namespace Homework1
 {
     internal class BossFight
     {
-        static void Main1(string[] args)
+        static void Main(string[] args)
         {
             const string HookMenu = "1";
             const string GoatMenu = "2";
