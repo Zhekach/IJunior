@@ -8,39 +8,37 @@ namespace Functions
 {
     internal class UIElement
     {
-        static void Main (string[] args)
+        static void Main1(string[] args)
         {
             int maxPercent = 100;
-            int percent = 75;
+            int filledPercent = 75;
             int barLength = 20;
 
-            PrintBar(percent, maxPercent, barLength);
+            PrintBar(filledPercent, maxPercent, barLength, fullChar: '#');
         }
 
-        static void PrintBar(int percent, int maxPercent, int barLength)
+        static void PrintBar(int filledPercent, int maxPercent, int barLength,
+            char startChar = '[', char fullChar = '*', char emptyChar = '_', char finishChar = ']')
         {
-            char startChar = '[';
-            char fullChar = '#';
-            char emptyChar = '_';
-            char finishChar = ']';
-            int fullCharCount = 0;
+            int filledLength = 0;
 
-            fullCharCount = percent / (maxPercent / barLength);
-            
+            filledLength = filledPercent * barLength / maxPercent;
+
             Console.SetCursorPosition(2, 20);
             Console.Write(startChar);
 
-            for(int i = 0; i < fullCharCount;  i++)
-            {
-                Console.Write(fullChar);
-            }
-
-            for (int i = fullCharCount; i < barLength; i++)
-            {
-                Console.Write(emptyChar);
-            }
+            PrintChars(filledLength, fullChar);
+            PrintChars(barLength - filledLength, emptyChar);
 
             Console.WriteLine(finishChar);
+        }
+
+        static void PrintChars(int charsCount, char charToPrint)
+        {
+            for (int i = 0; i < charsCount; i++)
+            {
+                Console.Write(charToPrint);
+            }
         }
     }
 }

@@ -8,13 +8,13 @@ namespace Functions
 {
     internal class PersonnelRecords
     {
-        static void Main1(string[] args)
+        static void Main11(string[] args)
         {
-            const string AddCommandString = "add";
-            const string ShowCommandString = "showAll";
-            const string DeleteCommandString = "delete";
-            const string SearchCommandString = "search";
-            const string ExitCommandString = "exit";
+            const string AddDossierCommand = "add";
+            const string ShowDossierCommand = "showAll";
+            const string DeleteDossierCommand = "delete";
+            const string SearchDossierCommand = "search";
+            const string ExitoDossierCommand = "exit";
 
             string[] fullNames = new string[0];
             string[] posts = new string[0];
@@ -23,57 +23,50 @@ namespace Functions
             while (isOpen)
             {
                 Console.WriteLine("\n\nДля работы с программой используйте следующие команды:\n" +
-                $"{AddCommandString} - добавляет новую запись в систему\n" +
-                $"{ShowCommandString} - вывод всех записей в системе\n" +
-                $"{DeleteCommandString} - удаление записи по её номеру\n" +
-                $"{SearchCommandString} - поиск по фамилии\n" +
-                $"{ExitCommandString} - завершение работы\n");
+                $"{AddDossierCommand} - добавляет новую запись в систему\n" +
+                $"{ShowDossierCommand} - вывод всех записей в системе\n" +
+                $"{DeleteDossierCommand} - удаление записи по её номеру\n" +
+                $"{SearchDossierCommand} - поиск по фамилии\n" +
+                $"{ExitoDossierCommand} - завершение работы\n");
 
                 switch (Console.ReadLine())
                 {
-                    case AddCommandString:
-                        Console.Write("Введите ФИО сотрудника: ");
-                        string enteredFullName = Console.ReadLine();
-
-                        Console.Write("и должность сотрудника: ");
-                        string enteredPost = Console.ReadLine();
-
-                        fullNames = AddRecord(fullNames, enteredFullName);
-                        posts = AddRecord(posts, enteredPost);
+                    case AddDossierCommand:
+                        (fullNames, posts) = AddRecord(fullNames, posts);
                         break;
-                    case ShowCommandString:
+
+                    case ShowDossierCommand:
                         ShowRecords(fullNames, posts);
                         break;
-                    case DeleteCommandString:
-                        Console.Write("Введите номер записи для удаления: ");
-                        int enteredID = Convert.ToInt32(Console.ReadLine());
 
-                        if (enteredID > 0 && enteredID <= fullNames.Length)
-                        {
-                            fullNames = DeleteRecord(fullNames, enteredID);
-                            posts = DeleteRecord(posts, enteredID);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Введён неверный номер записи.");
-                        }
+                    case DeleteDossierCommand:
+                        (fullNames, posts) = DeleteRecord(fullNames, posts);
                         break;
-                    case SearchCommandString:
-                        Console.Write("Введите фамилию для поиска: ");
-                        string enteredSurname = Console.ReadLine();
 
-                        SearchRecord(fullNames, posts, enteredSurname);
+                    case SearchDossierCommand:
+                        SearchRecord(fullNames, posts);
                         break;
-                    case ExitCommandString:
+
+                    case ExitoDossierCommand:
                         isOpen = false;
                         break;
+
                     default:
                         Console.WriteLine("Введена неверная команда, попробуйте ещё раз.");
                         break;
                 }
             }
         }
-        static string[] AddRecord(string[] baseArray, string reccord)
+
+        static (string[], string[]) AddRecord(string[] fullNames, string[] posts)
+        {
+            fullNames = AddEllementInArrayToEnd(fullNames, descriptionForUser: "Введите ФИО сотрудника: ");
+            posts = AddEllementInArrayToEnd(posts, descriptionForUser: "и должность сотрудника: ");
+
+            return (fullNames, posts);
+        }
+
+        static string[] AddEllementInArrayToEnd(string[] baseArray, string descriptionForUser = "Введите новый элемент")
         {
             string[] newArray = new string[baseArray.Length + 1];
 
@@ -82,7 +75,8 @@ namespace Functions
                 newArray[i] = baseArray[i];
             }
 
-            newArray[newArray.Length - 1] = reccord;
+            Console.Write(descriptionForUser);
+            newArray[newArray.Length - 1] = Console.ReadLine();
 
             return newArray;
         }
@@ -95,41 +89,42 @@ namespace Functions
             }
         }
 
-        static string[] DeleteRecord(string[] baseArray, int id)
+        static (string[], string[]) DeleteRecord(string[] fullNames, string[] posts)
         {
-            if (baseArray.Length == 0)
+            Console.Write("Введите номер записи для удаления: ");
+            int enteredID = Convert.ToInt32(Console.ReadLine());
+
+            if (fullNames.Length == 0)
             {
-                return baseArray;
+                Console.WriteLine("Нечего удалять.");
+                return (fullNames, posts);
             }
-
-            string[] newArray = new string[baseArray.Length - 1];
-            id--;
-
-            for (int i = 0; i < newArray.Length; i++)
+            else if (enteredID <= 0 || enteredID >= fullNames.Length)
             {
-                if (i < id)
-                {
-                    newArray[i] = baseArray[i];
-                }
-                else
-                {
-                    newArray[i] = baseArray[i + 1];
-                }
+                Console.WriteLine("Введён неверный номер записи.");
+                return (fullNames, posts);
             }
-
-            return newArray;
+            else
+            {
+                fullNames = DeleteElementInArray(fullNames, enteredID);
+                posts = DeleteElementInArray(posts, enteredID);
+                return (fullNames, posts);
+            }
         }
 
-        static void SearchRecord(string[] fullNames, string[] posts, string surname)
+        static void SearchRecord(string[] fullNames, string[] posts)
         {
             bool isSearched = false;
             char splitChar = ' ';
+
+            Console.Write("Введите фамилию для поиска: ");
+            string enteredSurname = Console.ReadLine();
 
             for (int i = 0; i < fullNames.Length; i++)
             {
                 string[] fullNameSplited = fullNames[i].Split(splitChar);
 
-                if (fullNameSplited[0] == surname)
+                if (fullNameSplited[0] == enteredSurname)
                 {
                     isSearched = true;
 
@@ -139,10 +134,28 @@ namespace Functions
                 }
             }
 
-            if(isSearched == false)
+            if (isSearched == false)
             {
                 Console.WriteLine("В системе нет сотрудников с такой фамилией =(");
             }
+        }
+
+        static string[] DeleteElementInArray(string[] baseArray, int index)
+        {
+            string[] newArray = new string[baseArray.Length - 1];
+            index--;
+
+            for (int i = 0; i < index; i++)
+            {
+                newArray[i] = baseArray[i];
+            }
+
+            for (int i = index; i < newArray.Length; i++)
+            {
+                newArray[i] = baseArray[i + 1];
+            }
+
+            return newArray;
         }
     }
 }
