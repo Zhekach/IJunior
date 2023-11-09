@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Functions
 {
@@ -35,7 +31,9 @@ namespace Functions
 
             for (int i = 0; i < shuffledArray.Length; i++)
             {
-                shuffledArray[i] = baseArray[random.Next(i, shuffledArray.Length)];
+                int index = random.Next(baseArray.Length);
+                shuffledArray[i] = baseArray[index];
+                baseArray = DeleteElementInArray(baseArray, index);
             }
             return shuffledArray;
         }
@@ -49,6 +47,22 @@ namespace Functions
 
             Console.WriteLine("");
         }
+
+        static int[] DeleteElementInArray(int[] baseArray, int index)
+        {
+            int[] newArray = new int[baseArray.Length - 1];
+
+            for (int i = 0; i < index; i++)
+            {
+                newArray[i] = baseArray[i];
+            }
+
+            for (int i = index; i < newArray.Length; i++)
+            {
+                newArray[i] = baseArray[i + 1];
+            }
+
+            return newArray;
+        }
     }
 }
-
