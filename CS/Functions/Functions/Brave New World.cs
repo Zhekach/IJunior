@@ -8,5 +8,9 @@ namespace Functions
 {
     internal class Brave_New_World
     {
+        public void Main(string[] args)
+        {
+
+        }
     }
 }

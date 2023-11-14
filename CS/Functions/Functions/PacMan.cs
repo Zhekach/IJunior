@@ -7,7 +7,7 @@ namespace Functions
 {
     internal class PacMan
     {
-        static void Main1(string[] args)
+        static void Main(string[] args)
         {
             Console.CursorVisible = false;
 

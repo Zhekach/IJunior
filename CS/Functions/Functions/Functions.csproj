@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Brave New World.cs" />
     <Compile Include="KanzasShuffle.cs" />
     <Compile Include="PacMan.cs" />
     <Compile Include="PersonnelRecords.cs" />
