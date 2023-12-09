@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ namespace Functions
 {
     internal class PacMan
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             Console.CursorVisible = false;
 
