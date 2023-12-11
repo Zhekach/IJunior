@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Functions
 {
@@ -12,12 +10,22 @@ namespace Functions
         {
             Console.CursorVisible = false;
 
-            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('w', ConsoleKey.W, false, false, false);
-
             char[,] map = CreateMap();
 
             int playerX = 1;
             int playerY = 1;
+
+            bool isEditMode = false;
+
+            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('s', ConsoleKey.W, false, false, false);
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    pressedKey = Console.ReadKey();
+                }
+            });
 
             while (true)
             {
@@ -25,13 +33,14 @@ namespace Functions
 
                 Console.ForegroundColor = ConsoleColor.Gray;
                 PrintMap(map);
+                PrintUI(isEditMode, pressedKey);
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("&");
 
-                pressedKey = Console.ReadKey();
-                HandleInput(pressedKey, ref playerX, ref playerY, map);
+                isEditMode = Console.NumberLock;
+                HandleInput(pressedKey, ref playerX, ref playerY, map, isEditMode);
 
                 Thread.Sleep(1000);
             }
@@ -39,7 +48,7 @@ namespace Functions
 
         public static char[,] CreateMap()
         {
-            char[,] map = { { 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x' },
+            char[,] plane = { { 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x' },
                             { 'x', ' ', 'x', ' ', ' ', ' ', ' ', ' ', ' ', 'x' },
                             { 'x', ' ', 'x', ' ', 'x', 'x', 'x', 'x', ' ', 'x' },
                             { 'x', ' ', ' ', ' ', 'x', ' ', ' ', 'x', ' ', 'x' },
@@ -49,14 +58,25 @@ namespace Functions
                             { 'x', ' ', 'x', ' ', 'x', ' ', ' ', ' ', ' ', 'x' },
                             { 'x', ' ', ' ', ' ', 'x', ' ', ' ', ' ', ' ', 'x' },
                             { 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x' }};
+
+            char[,] map = new char[plane.GetLength(0), plane.GetLength(1)];
+
+            for (int x = 0; x < map.GetLength(0); x++)
+            {
+                for (int y = 0; y < map.GetLength(1); y++)
+                {
+                    map[x, y] = plane[y, x];
+                }
+            }
+
             return map;
         }
 
         public static void PrintMap(char[,] map)
         {
-            for (int x = 0; x < map.GetLength(0); x++)
+            for (int y = 0; y < map.GetLength(1); y++)
             {
-                for (int y = 0; y < map.GetLength(1); y++)
+                for (int x = 0; x < map.GetLength(0); x++)
                 {
                     Console.Write(map[x, y]);
                 }
@@ -65,10 +85,38 @@ namespace Functions
             }
         }
 
-        public static void HandleInput(ConsoleKeyInfo pressedKey, ref int playerX, ref int playerY, char[,] map)
+        public static void PrintUI(bool isEditMode, ConsoleKeyInfo pressedKey)
+        {
+            Console.SetCursorPosition(20, 2);
+            if (isEditMode)
+            {
+                Console.Write("Mode = Edit");
+            }
+            else
+            {
+                Console.Write("Mode = Game");
+            }
+
+            Console.SetCursorPosition (20, 4);
+            Console.Write("Pressed key = " + pressedKey.KeyChar);
+        }
+
+        public static void HandleInput(ConsoleKeyInfo pressedKey, ref int playerX, ref int playerY, char[,] map, bool isEditMode)
         {
             int[] direction = GetDirection(pressedKey);
 
+            if (isEditMode)
+            {
+                MoveInGameMode(direction, ref playerX, ref playerY, map);
+            }
+            else
+            {
+                MoveInGameMode(direction, ref playerX, ref playerY, map);
+            }
+        }
+
+        private static void MoveInGameMode(int[] direction, ref int playerX, ref int playerY, char[,] map)
+        {
             int nextPlayerX = playerX + direction[0];
             int nextPlayerY = playerY + direction[1];
 
