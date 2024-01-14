@@ -86,12 +86,12 @@ namespace Functions
 
             char nextCell = map[nextPacmanPositionX, nextPacmanPositionY];
 
-            if ( nextCell == ' ' || nextCell == '*')
+            if (nextCell == ' ' || nextCell == '*')
             {
                 pacmanX = nextPacmanPositionX;
                 pacmanY = nextPacmanPositionY;
 
-                if(nextCell == '*')
+                if (nextCell == '*')
                 {
                     score++;
                     map[nextPacmanPositionX, nextPacmanPositionY] = ' ';

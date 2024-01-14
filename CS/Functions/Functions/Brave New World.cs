@@ -1,62 +1,82 @@
 ﻿using System;
-using System.Threading;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Functions
 {
     internal class BraveNewWorld
     {
+        const char TreasureMapChar = '*';
+        const char EmptyMapChar = ' ';
+        const char WallMapChar = 'x';
+        const char PlayerMapChar = '&';
+
+        const char TreasureKeyChar = 'q';
+        const char EmptyKeyChar = 'e';
+        const char WallKeyChar = 'r';
+
+        const char MoveUpChar = 'w';
+        const char MoveDownChar = 's';
+        const char MoveLeftChar = 'a';
+        const char MoveRightChar = 'd';
+
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
 
             char[,] map = CreateMap();
 
-            int playerX = 1;
-            int playerY = 1;
+            int playerXPosition = 1;
+            int playerYPosition = 1;
+            int score = 0;
 
             bool isEditMode = false;
+            bool isUserExited = false;
 
-            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('s', ConsoleKey.W, false, false, false);
+            ConsoleKeyInfo consoleKeyInfo;
+
+            char pressedChar = MoveUpChar;
 
             Task.Run(() =>
             {
-                while (true)
+                while (isUserExited == false)
                 {
-                    pressedKey = Console.ReadKey();
+                    isEditMode = Console.NumberLock;
                 }
             });
 
-            while (true)
+            do
             {
                 Console.Clear();
 
                 Console.ForegroundColor = ConsoleColor.Gray;
                 PrintMap(map);
-                PrintUI(isEditMode, pressedKey);
+                PrintUI(isEditMode, pressedChar, score);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.SetCursorPosition(playerX, playerY);
-                Console.Write("&");
+                Console.SetCursorPosition(playerXPosition, playerYPosition);
+                Console.Write(PlayerMapChar);
 
-                isEditMode = Console.NumberLock;
-                HandleInput(pressedKey, ref playerX, ref playerY, map, isEditMode);
+                consoleKeyInfo = Console.ReadKey(true);
 
-                Thread.Sleep(1000);
-            }
+                pressedChar = consoleKeyInfo.KeyChar;
+                isUserExited = (consoleKeyInfo.Key == ConsoleKey.Escape);
+
+                HandlePlayerMovementComand(pressedChar, ref playerXPosition, ref playerYPosition, map, isEditMode, ref score);
+            } while (isUserExited == false);
         }
 
         public static char[,] CreateMap()
         {
             char[,] plane = { { 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x' },
-                            { 'x', ' ', 'x', ' ', ' ', ' ', ' ', ' ', ' ', 'x' },
+                            { 'x', ' ', 'x', '*', ' ', ' ', ' ', ' ', ' ', 'x' },
                             { 'x', ' ', 'x', ' ', 'x', 'x', 'x', 'x', ' ', 'x' },
                             { 'x', ' ', ' ', ' ', 'x', ' ', ' ', 'x', ' ', 'x' },
                             { 'x', ' ', 'x', ' ', 'x', ' ', ' ', 'x', ' ', 'x' },
-                            { 'x', ' ', 'x', ' ', 'x', ' ', ' ', 'x', ' ', 'x' },
-                            { 'x', ' ', 'x', ' ', 'x', ' ', 'x', 'x', ' ', 'x' },
-                            { 'x', ' ', 'x', ' ', 'x', ' ', ' ', ' ', ' ', 'x' },
-                            { 'x', ' ', ' ', ' ', 'x', ' ', ' ', ' ', ' ', 'x' },
+                            { 'x', ' ', 'x', ' ', 'x', ' ', '*', 'x', ' ', 'x' },
+                            { 'x', '*', 'x', ' ', 'x', ' ', 'x', 'x', ' ', 'x' },
+                            { 'x', '*', 'x', ' ', 'x', ' ', ' ', ' ', ' ', 'x' },
+                            { 'x', ' ', ' ', ' ', 'x', ' ', ' ', ' ', '*', 'x' },
                             { 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x' }};
 
             char[,] map = new char[plane.GetLength(0), plane.GetLength(1)];
@@ -85,7 +105,7 @@ namespace Functions
             }
         }
 
-        public static void PrintUI(bool isEditMode, ConsoleKeyInfo pressedKey)
+        public static void PrintUI(bool isEditMode, char pressedKey, int score)
         {
             Console.SetCursorPosition(20, 2);
             if (isEditMode)
@@ -97,60 +117,108 @@ namespace Functions
                 Console.Write("Mode = Game");
             }
 
-            Console.SetCursorPosition (20, 4);
-            Console.Write("Pressed key = " + pressedKey.KeyChar);
+            Console.SetCursorPosition(20, 4);
+            Console.Write("Score = " + score);
+
+            Console.SetCursorPosition(20, 6);
+            Console.Write("Pressed key = " + pressedKey);
+
+            Console.SetCursorPosition(0, 12);
+            Console.Write("Press NumLock to enter EditMode. \n\n" +
+                            " In EditMode: \n" +
+                            $" {TreasureKeyChar} - to add treasure ({TreasureMapChar}) \n" +
+                            $" {EmptyKeyChar} - to add space ({EmptyMapChar}) \n" +
+                            $" {WallKeyChar} - to add wall ({WallMapChar})\n" +
+                       "\nPress Escape to exit.");
         }
 
-        public static void HandleInput(ConsoleKeyInfo pressedKey, ref int playerX, ref int playerY, char[,] map, bool isEditMode)
+        public static void HandlePlayerMovementComand(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map, bool isEditMode, ref int score)
         {
             int[] direction = GetDirection(pressedKey);
 
             if (isEditMode)
             {
-                MoveInGameMode(direction, ref playerX, ref playerY, map);
+                MovePlayerEditMode(direction, ref playerXPosition, ref playerYPosition, map);
+                EditMap(pressedKey, ref playerXPosition, ref playerYPosition, map);
             }
             else
             {
-                MoveInGameMode(direction, ref playerX, ref playerY, map);
+                MovePlayerGameMode(direction, ref playerXPosition, ref playerYPosition, map, ref score);
             }
         }
 
-        private static void MoveInGameMode(int[] direction, ref int playerX, ref int playerY, char[,] map)
+        private static void EditMap(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map)
         {
-            int nextPlayerX = playerX + direction[0];
-            int nextPlayerY = playerY + direction[1];
-
-            char nextChar = map[nextPlayerX, nextPlayerY];
-
-            if (nextChar == ' ')
+            switch (pressedKey)
             {
-                playerX = nextPlayerX;
-                playerY = nextPlayerY;
+                case TreasureKeyChar:
+                    EditCharIn2DArray(TreasureMapChar, playerXPosition, playerYPosition, map);
+                    break;
+                case EmptyKeyChar:
+                    EditCharIn2DArray(EmptyMapChar, playerXPosition, playerYPosition, map);
+                    break;
+                case WallKeyChar:
+                    EditCharIn2DArray(WallMapChar, playerXPosition, playerYPosition, map);
+                    break;
             }
         }
 
-        private static int[] GetDirection(ConsoleKeyInfo pressedKey)
+        private static void EditCharIn2DArray(char newChar, int charXPosition, int charYPosition, char[,] baseArray)
+        {
+            baseArray[charXPosition, charYPosition] = newChar;
+        }
+
+        private static void MovePlayerEditMode(int[] direction, ref int playerXPosition, ref int playerYPosition, char[,] map)
+        {
+            int nextPlayerXPosition = playerXPosition + direction[0];
+            int nextPlayerYPosition = playerYPosition + direction[1];
+
+            if (nextPlayerXPosition > 0 && nextPlayerXPosition < map.GetLength(0) - 1 &&
+                nextPlayerYPosition > 0 && nextPlayerYPosition < map.GetLength(1) - 1)
+            {
+                playerXPosition = nextPlayerXPosition;
+                playerYPosition = nextPlayerYPosition;
+            }
+        }
+
+        private static void MovePlayerGameMode(int[] direction, ref int playerXPosition, ref int playerYPosition, char[,] map, ref int score)
+        {
+            int nextPlayerXPosition = playerXPosition + direction[0];
+            int nextPlayerYPosition = playerYPosition + direction[1];
+
+            char nextCell = map[nextPlayerXPosition, nextPlayerYPosition];
+
+            if (nextCell == EmptyMapChar || nextCell == TreasureMapChar)
+            {
+                playerXPosition = nextPlayerXPosition;
+                playerYPosition = nextPlayerYPosition;
+
+                if (nextCell == TreasureMapChar)
+                {
+                    map[nextPlayerXPosition, nextPlayerYPosition] = EmptyMapChar;
+                    score++;
+                }
+            }
+        }
+
+        private static int[] GetDirection(char pressedKey)
         {
             int[] direction = { 0, 0 };
 
-            if (pressedKey.Key == ConsoleKey.W)
+            switch (pressedKey)
             {
-                direction[1] = -1;
-            }
-
-            if (pressedKey.Key == ConsoleKey.S)
-            {
-                direction[1] = 1;
-            }
-
-            if (pressedKey.Key == ConsoleKey.D)
-            {
-                direction[0] = 1;
-            }
-
-            if (pressedKey.Key == ConsoleKey.A)
-            {
-                direction[0] = -1;
+                case MoveUpChar:
+                    direction[1] = -1;
+                    break;
+                case MoveDownChar:
+                    direction[1] = 1;
+                    break;
+                case MoveLeftChar:
+                    direction[0] = -1;
+                    break;
+                case MoveRightChar:
+                    direction[0] = 1;
+                    break;
             }
 
             return direction;
