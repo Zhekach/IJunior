@@ -6,22 +6,11 @@ namespace Functions
 {
     internal class BraveNewWorld
     {
-        const char TreasureMapChar = '*';
-        const char EmptyMapChar = ' ';
-        const char WallMapChar = 'x';
-        const char PlayerMapChar = '&';
-
-        const char TreasureKeyChar = 'q';
-        const char EmptyKeyChar = 'e';
-        const char WallKeyChar = 'r';
-
-        const char MoveUpChar = 'w';
-        const char MoveDownChar = 's';
-        const char MoveLeftChar = 'a';
-        const char MoveRightChar = 'd';
-
         static void Main(string[] args)
         {
+            const char PlayerMapChar = '&';
+            const char MoveUpChar = 'w';
+
             Console.CursorVisible = false;
 
             char[,] map = CreateMap();
@@ -107,6 +96,14 @@ namespace Functions
 
         public static void PrintUI(bool isEditMode, char pressedKey, int score)
         {
+            const char TreasureMapChar = '*';
+            const char EmptyMapChar = ' ';
+            const char WallMapChar = 'x';
+
+            const char TreasureKeyChar = 'q';
+            const char EmptyKeyChar = 'e';
+            const char WallKeyChar = 'r';
+
             Console.SetCursorPosition(20, 2);
             if (isEditMode)
             {
@@ -149,6 +146,14 @@ namespace Functions
 
         private static void EditMap(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map)
         {
+            const char TreasureMapChar = '*';
+            const char EmptyMapChar = ' ';
+            const char WallMapChar = 'x';
+
+            const char TreasureKeyChar = 'q';
+            const char EmptyKeyChar = 'e';
+            const char WallKeyChar = 'r';
+
             switch (pressedKey)
             {
                 case TreasureKeyChar:
@@ -183,6 +188,9 @@ namespace Functions
 
         private static void MovePlayerGameMode(int[] direction, ref int playerXPosition, ref int playerYPosition, char[,] map, ref int score)
         {
+            const char TreasureMapChar = '*';
+            const char EmptyMapChar = ' ';
+
             int nextPlayerXPosition = playerXPosition + direction[0];
             int nextPlayerYPosition = playerYPosition + direction[1];
 
@@ -203,6 +211,11 @@ namespace Functions
 
         private static int[] GetDirection(char pressedKey)
         {
+            const char MoveUpChar = 'w';
+            const char MoveDownChar = 's';
+            const char MoveLeftChar = 'a';
+            const char MoveRightChar = 'd';
+
             int[] direction = { 0, 0 };
 
             switch (pressedKey)
