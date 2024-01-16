@@ -6,25 +6,21 @@ namespace Functions
 {
     internal class BraveNewWorld
     {
-        const char TreasureMapChar = '*';
-        const char EmptyMapChar = ' ';
-        const char WallMapChar = 'x';
-        const char PlayerMapChar = '&';
-
-        const char TreasureKeyChar = 'q';
-        const char EmptyKeyChar = 'e';
-        const char WallKeyChar = 'r';
-
-        const char MoveUpChar = 'w';
-        const char MoveDownChar = 's';
-        const char MoveLeftChar = 'a';
-        const char MoveRightChar = 'd';
-
         static void Main(string[] args)
         {
-            Console.CursorVisible = false;
+            const char TreasureMapChar = '*';
+            const char EmptyMapChar = ' ';
+            const char WallMapChar = 'x';
+            const char PlayerMapChar = '&';
 
-            char[,] map = CreateMap();
+            const char TreasureKeyChar = 'q';
+            const char EmptyKeyChar = 'e';
+            const char WallKeyChar = 'r';
+
+            const char MoveUpChar = 'w';
+            const char MoveDownChar = 's';
+            const char MoveLeftChar = 'a';
+            const char MoveRightChar = 'd';
 
             int playerXPosition = 1;
             int playerYPosition = 1;
@@ -36,6 +32,11 @@ namespace Functions
             ConsoleKeyInfo consoleKeyInfo;
 
             char pressedChar = MoveUpChar;
+
+            Console.CursorVisible = false;
+
+            char[,] map = CreateMap();
+
 
             Task.Run(() =>
             {
@@ -51,7 +52,7 @@ namespace Functions
 
                 Console.ForegroundColor = ConsoleColor.Gray;
                 PrintMap(map);
-                PrintUI(isEditMode, pressedChar, score);
+                PrintUI(isEditMode, pressedChar, score, TreasureKeyChar, EmptyKeyChar, WallKeyChar, TreasureMapChar, EmptyMapChar, WallMapChar);
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.SetCursorPosition(playerXPosition, playerYPosition);
@@ -62,7 +63,9 @@ namespace Functions
                 pressedChar = consoleKeyInfo.KeyChar;
                 isUserExited = (consoleKeyInfo.Key == ConsoleKey.Escape);
 
-                HandlePlayerMovementComand(pressedChar, ref playerXPosition, ref playerYPosition, map, isEditMode, ref score);
+                HandlePlayerMovementComand(pressedChar, ref playerXPosition, ref playerYPosition, map, isEditMode, ref score,
+                                            TreasureKeyChar, EmptyKeyChar, WallKeyChar, TreasureMapChar, EmptyMapChar, WallMapChar,
+                                            MoveUpChar, MoveDownChar, MoveLeftChar, MoveRightChar);
             } while (isUserExited == false);
         }
 
@@ -105,7 +108,9 @@ namespace Functions
             }
         }
 
-        public static void PrintUI(bool isEditMode, char pressedKey, int score)
+        public static void PrintUI(bool isEditMode, char pressedKey, int score,
+                                    char treasureKeyChar, char emptyKeyChar, char wallKeyChar,
+                                    char treasureMapChar, char emptyMapChar, char wallMapChar)
         {
             Console.SetCursorPosition(20, 2);
             if (isEditMode)
@@ -126,40 +131,46 @@ namespace Functions
             Console.SetCursorPosition(0, 12);
             Console.Write("Press NumLock to enter EditMode. \n\n" +
                             " In EditMode: \n" +
-                            $" {TreasureKeyChar} - to add treasure ({TreasureMapChar}) \n" +
-                            $" {EmptyKeyChar} - to add space ({EmptyMapChar}) \n" +
-                            $" {WallKeyChar} - to add wall ({WallMapChar})\n" +
+                            $" {treasureKeyChar} - to add treasure ({treasureMapChar}) \n" +
+                            $" {emptyKeyChar} - to add space ({emptyMapChar}) \n" +
+                            $" {wallKeyChar} - to add wall ({wallMapChar})\n" +
                        "\nPress Escape to exit.");
         }
 
-        public static void HandlePlayerMovementComand(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map, bool isEditMode, ref int score)
+        public static void HandlePlayerMovementComand(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map, bool isEditMode, ref int score,
+                                                       char treasureKeyChar, char emptyKeyChar, char wallKeyChar,
+                                                       char treasureMapChar, char emptyMapChar, char wallMapChar,
+                                                       char moveUpChar, char moveDownChar, char moveLeftChar, char moveRightChar)
         {
-            int[] direction = GetDirection(pressedKey);
+            int[] direction = GetDirection(pressedKey, moveUpChar, moveDownChar, moveLeftChar, moveRightChar);
 
             if (isEditMode)
             {
                 MovePlayerEditMode(direction, ref playerXPosition, ref playerYPosition, map);
-                EditMap(pressedKey, ref playerXPosition, ref playerYPosition, map);
+                EditMap(pressedKey, ref playerXPosition, ref playerYPosition, map, treasureKeyChar, emptyKeyChar, wallKeyChar, treasureMapChar, emptyMapChar, wallMapChar);
             }
             else
             {
-                MovePlayerGameMode(direction, ref playerXPosition, ref playerYPosition, map, ref score);
+                MovePlayerGameMode(direction, ref playerXPosition, ref playerYPosition, map, ref score,
+                                   treasureMapChar, emptyMapChar);
             }
         }
 
-        private static void EditMap(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map)
+        private static void EditMap(char pressedKey, ref int playerXPosition, ref int playerYPosition, char[,] map,
+                                    char treasureKeyChar, char emptyKeyChar, char wallKeyChar,
+                                    char treasureMapChar, char emptyMapChar, char wallMapChar)
         {
-            switch (pressedKey)
+            if (pressedKey == treasureKeyChar)
             {
-                case TreasureKeyChar:
-                    EditCharIn2DArray(TreasureMapChar, playerXPosition, playerYPosition, map);
-                    break;
-                case EmptyKeyChar:
-                    EditCharIn2DArray(EmptyMapChar, playerXPosition, playerYPosition, map);
-                    break;
-                case WallKeyChar:
-                    EditCharIn2DArray(WallMapChar, playerXPosition, playerYPosition, map);
-                    break;
+                EditCharIn2DArray(treasureMapChar, playerXPosition, playerYPosition, map);
+            }
+            else if (pressedKey == emptyKeyChar)
+            {
+                EditCharIn2DArray(emptyMapChar, playerXPosition, playerYPosition, map);
+            }
+            else if (pressedKey == wallKeyChar)
+            {
+                EditCharIn2DArray(wallMapChar, playerXPosition, playerYPosition, map);
             }
         }
 
@@ -181,44 +192,46 @@ namespace Functions
             }
         }
 
-        private static void MovePlayerGameMode(int[] direction, ref int playerXPosition, ref int playerYPosition, char[,] map, ref int score)
+        private static void MovePlayerGameMode(int[] direction, ref int playerXPosition, ref int playerYPosition, char[,] map, ref int score,
+                                               char treasureMapChar, char emptyMapChar)
         {
             int nextPlayerXPosition = playerXPosition + direction[0];
             int nextPlayerYPosition = playerYPosition + direction[1];
 
             char nextCell = map[nextPlayerXPosition, nextPlayerYPosition];
 
-            if (nextCell == EmptyMapChar || nextCell == TreasureMapChar)
+            if (nextCell == emptyMapChar || nextCell == treasureMapChar)
             {
                 playerXPosition = nextPlayerXPosition;
                 playerYPosition = nextPlayerYPosition;
 
-                if (nextCell == TreasureMapChar)
+                if (nextCell == treasureMapChar)
                 {
-                    map[nextPlayerXPosition, nextPlayerYPosition] = EmptyMapChar;
+                    map[nextPlayerXPosition, nextPlayerYPosition] = emptyMapChar;
                     score++;
                 }
             }
         }
 
-        private static int[] GetDirection(char pressedKey)
+        private static int[] GetDirection(char pressedKey, char moveUpChar, char moveDownChar, char moveLeftChar, char moveRightChar)
         {
             int[] direction = { 0, 0 };
 
-            switch (pressedKey)
+            if (pressedKey == moveUpChar)
             {
-                case MoveUpChar:
-                    direction[1] = -1;
-                    break;
-                case MoveDownChar:
-                    direction[1] = 1;
-                    break;
-                case MoveLeftChar:
-                    direction[0] = -1;
-                    break;
-                case MoveRightChar:
-                    direction[0] = 1;
-                    break;
+                direction[1] = -1;
+            }
+            else if (pressedKey == moveDownChar)
+            {
+                direction[1] = 1;
+            }
+            else if (pressedKey == moveLeftChar)
+            {
+                direction[0] = -1;
+            }
+            else if (pressedKey == moveRightChar)
+            {
+                direction[0] = 1;
             }
 
             return direction;
