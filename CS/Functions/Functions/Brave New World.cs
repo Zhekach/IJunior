@@ -6,7 +6,7 @@ namespace Functions
 {
     internal class BraveNewWorld
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             const char TreasureMapChar = '*';
             const char EmptyMapChar = ' ';

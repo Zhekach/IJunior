@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Brave New World.cs" />
+    <Compile Include="Collections\Dictionary.cs" />
     <Compile Include="KanzasShuffle.cs" />
     <Compile Include="PacMan.cs" />
     <Compile Include="PersonnelRecords.cs" />
