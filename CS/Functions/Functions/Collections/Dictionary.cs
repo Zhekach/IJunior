@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Functions.Collections
 {
     internal class Dictionary
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
+            const string ExitCommand = "exit";
+
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
             
             dictionary.Add("mouse", "small animal");
@@ -18,7 +17,6 @@ namespace Functions.Collections
 
             bool isUserExited = false;
 
-            const string ExitCommand = "exit";
             string dictionaryNotContainsAnswer = "Dictionary don`t contains such word.";
 
             while(isUserExited == false) 
@@ -30,7 +28,7 @@ namespace Functions.Collections
                 if(enteredWord == ExitCommand)
                 {
                     isUserExited = true;
-                    break;
+                    continue;
                 }
 
                 if(dictionary.ContainsKey(enteredWord))
@@ -46,7 +44,6 @@ namespace Functions.Collections
 
         private static void PrintUI(string exitCommand)
         {
-            //Console.SetCursorPosition(0, 0);
             Console.Write("\nEnter a word to get its translation\n" +
                          $"Enter \"{exitCommand}\" to exit programm.\n\n");
         }
