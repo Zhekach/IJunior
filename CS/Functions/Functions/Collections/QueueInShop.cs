@@ -6,7 +6,7 @@ namespace Functions.Collections
 {
     internal class QueueInShop
     {
-        static void Main1(string[] args)
+        static void Main(string[] args)
         {
             Queue<int> purchaseAmounts = new Queue<int>();
 
@@ -20,11 +20,7 @@ namespace Functions.Collections
             {
                 PrintQueue(purchaseAmounts);
                 PrintUI(accountValue);
-
-                Console.ReadKey();
-
-                accountValue += purchaseAmounts.Peek();
-                purchaseAmounts.Dequeue();
+                ServeCustomer(purchaseAmounts, ref accountValue);
 
                 Console.Clear();
             }
@@ -41,21 +37,30 @@ namespace Functions.Collections
 
         static void CreateQueue(Queue<int> queue, int size, int maxValue)
         {
-            Random rand = new Random();
+            Random random = new Random();
 
             for (int i = 0; i < size; i++)
             {
-                queue.Enqueue(rand.Next(maxValue));
+                queue.Enqueue(random.Next(maxValue));
             }
         }
 
         static void PrintQueue(Queue<int> purchaseAmounts)
         {
             Console.Write($"Сейчас в очереди {purchaseAmounts.Count} клиентов с суммами покупок: ");
+
             foreach (int purchase in purchaseAmounts)
             {
                 Console.Write(purchase + ", ");
             }
+        }
+
+        static void ServeCustomer(Queue<int> purchaseAmounts, ref int accountValue)
+        {
+            Console.ReadKey();
+
+            accountValue += purchaseAmounts.Peek();
+            purchaseAmounts.Dequeue();
         }
     }
 }
