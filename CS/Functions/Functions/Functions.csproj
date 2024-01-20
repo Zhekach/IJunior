@@ -46,6 +46,7 @@
     <Compile Include="Brave New World.cs" />
     <Compile Include="Collections\Dictionary.cs" />
     <Compile Include="Collections\DynamicArrayPro.cs" />
+    <Compile Include="Collections\PersonnelRecordsPro.cs" />
     <Compile Include="Collections\QueueInShop.cs" />
     <Compile Include="KanzasShuffle.cs" />
     <Compile Include="PacMan.cs" />
