@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Functions.Collections
 {
     internal class DynamicArrayPro
     {
-        static void Main1(string[] args)
+        static void Main(string[] args)
         {
             const string SumCommand = "sum";
             const string ExitCommand = "exit";
@@ -33,20 +29,11 @@ namespace Functions.Collections
                         break;
 
                     case SumCommand:
-                        Console.WriteLine($"Sum of all elements in array = {GetSumOfList(dynamicArrayPro)}");
+                        PrintSumOfList(dynamicArrayPro);
                         break;
 
                     default:
-                        int tempValue = 0;
-
-                        if (int.TryParse(userInput, out tempValue))
-                        {
-                            dynamicArrayPro.Add(tempValue);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Wrong value or command");
-                        }
+                        ParseUserInput(dynamicArrayPro, userInput);
                         break;
                 }
             }
@@ -59,16 +46,30 @@ namespace Functions.Collections
                             $"Enter \"{exitCommand}\" to close program.");
         }
 
-        static int GetSumOfList(List<int> list)
+        static void PrintSumOfList(List<int> list)
         {
-            int result = 0;
+            int sum = 0;
 
             foreach (int item in list)
             {
-                result += item;
+                sum += item;
             }
 
-            return result;
+            Console.WriteLine($"Sum of all elements in array = {sum}");
+        }
+
+        static void ParseUserInput(List<int> list, string userInput)
+        {
+            int tempValue = 0;
+
+            if (int.TryParse(userInput, out tempValue))
+            {
+                list.Add(tempValue);
+            }
+            else
+            {
+                Console.WriteLine("Wrong value or command");
+            }
         }
     }
 }

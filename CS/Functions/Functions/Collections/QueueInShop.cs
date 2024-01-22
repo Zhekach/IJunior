@@ -6,7 +6,7 @@ namespace Functions.Collections
 {
     internal class QueueInShop
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             Queue<int> purchaseAmounts = new Queue<int>();
 
