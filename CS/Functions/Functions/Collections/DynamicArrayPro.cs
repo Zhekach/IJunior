@@ -5,12 +5,12 @@ namespace Functions.Collections
 {
     internal class DynamicArrayPro
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             const string SumCommand = "sum";
             const string ExitCommand = "exit";
 
-            List<int> dynamicArrayPro = new List<int>();
+            List<int> integers = new List<int>();
 
             bool isUserExited = false;
 
@@ -29,11 +29,11 @@ namespace Functions.Collections
                         break;
 
                     case SumCommand:
-                        PrintSumOfList(dynamicArrayPro);
+                        PrintSumOfList(integers);
                         break;
 
                     default:
-                        ParseUserInput(dynamicArrayPro, userInput);
+                        AddByUserInput(integers, userInput);
                         break;
                 }
             }
@@ -58,11 +58,10 @@ namespace Functions.Collections
             Console.WriteLine($"Sum of all elements in array = {sum}");
         }
 
-        static void ParseUserInput(List<int> list, string userInput)
+        static void AddByUserInput(List<int> list, string userInput)
         {
-            int tempValue = 0;
 
-            if (int.TryParse(userInput, out tempValue))
+            if (int.TryParse(userInput, out int tempValue))
             {
                 list.Add(tempValue);
             }

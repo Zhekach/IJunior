@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Brave New World.cs" />
+    <Compile Include="Collections\CollectionMerging.cs" />
     <Compile Include="Collections\Dictionary.cs" />
     <Compile Include="Collections\DynamicArrayPro.cs" />
     <Compile Include="Collections\PersonnelRecordsPro.cs" />

@@ -8,7 +8,7 @@ namespace Functions
 {
     internal class Shuffle
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             int arraySize = 10;
             int maxArrayValue = 20;
