@@ -20,7 +20,8 @@ namespace Functions.Collections
             Console.WriteLine("Second Collection");
             PrintList(list2);
 
-            MergeCollections(list1, list2, listMerged);
+            MergeCollections(list1, listMerged);
+            MergeCollections(list2, listMerged);
 
             Console.WriteLine("Merged Collection");
             PrintList(listMerged);
@@ -46,19 +47,11 @@ namespace Functions.Collections
             Console.WriteLine("\n");
         }
 
-        static void MergeCollections(List<string> list1, List<string> list2, List<string> listMerged)
+        static void MergeCollections(List<string> listBase, List<string> listMerged)
         {
-            foreach (string item in list1)
+            foreach (string item in listBase)
             {
                 if(listMerged.Contains(item) == false)
-                {
-                    listMerged.Add(item);
-                }
-            }
-
-            foreach (string item in list2)
-            {
-                if (listMerged.Contains(item) == false)
                 {
                     listMerged.Add(item);
                 }
