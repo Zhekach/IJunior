@@ -5,7 +5,7 @@ namespace Functions.Collections
 {
     internal class CollectionMerging
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             List<string> list1 = new List<string>();
             List<string> list2 = new List<string>();
