@@ -51,6 +51,7 @@
     <Compile Include="Collections\QueueInShop.cs" />
     <Compile Include="KanzasShuffle.cs" />
     <Compile Include="OOP\WorkWithClasses.cs" />
+    <Compile Include="OOP\WorkWithProperties.cs" />
     <Compile Include="PacMan.cs" />
     <Compile Include="PersonnelRecords.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
