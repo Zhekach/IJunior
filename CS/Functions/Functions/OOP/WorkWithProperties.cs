@@ -45,15 +45,15 @@ namespace Functions.OOP
         }
 
         public char Character { get ; private set; } 
-        public int XPosition 
-        { 
+        public int XPosition
+        {
             get => _xPosition;
-            private set => _xPosition = value; 
+            private set { _xPosition = SetValidPosition(value, s_xMinPosition, s_xMaxPosition); }
         }
-        public int YPosition 
-        { 
-            get => _yPosition; 
-            private set=> _xPosition = value; 
+        public int YPosition
+        {
+            get => _yPosition;
+            private set { _yPosition = SetValidPosition(value, s_yMinPosition, s_yMaxPosition); }
         }
 
         private int SetValidPosition(int position, int minValue, int maxValue)
