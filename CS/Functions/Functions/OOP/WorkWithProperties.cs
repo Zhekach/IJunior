@@ -4,7 +4,7 @@ namespace Functions.OOP
 {
     internal class WorkWithProperties
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             Player player1 = new Player(20,25,'@');
             Player player2 = new Player(200,45, '$');

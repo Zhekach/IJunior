@@ -5,24 +5,138 @@ namespace Functions.OOP.PlayersDataBase
 {
     internal class PlayersDataBase
     {
-        static void Main1(string[] args)
+        static void Main(string[] args)
         {
+            const string AddCommand = "add";
+            const string DeleteCommand = "del";
+            const string BanCommand = "ban";
+            const string UnbanCommand = "unban";
+            const string ShowCommand = "show";
+            const string ExitCommand = "exit";
+
+            bool isUserExited = false;
+
             DataBase dataBase = new DataBase();
 
-            Player player1 = new Player(15, "jon", 2);
-            Player player2 = new Player(10, "Micky", 5);
-            Player player3 = new Player(10, "Ivan", 99);
+            while (isUserExited == false)
+            {
+                Console.Clear();
 
-            dataBase.AddPlayer(player1);
-            dataBase.AddPlayer(player2);
-            dataBase.AddPlayer(player3);
-            dataBase.BanPlayer(10);
-            dataBase.PrintAllPlayersInfo();
+                PrintUI(AddCommand,DeleteCommand,BanCommand, UnbanCommand, ShowCommand, ExitCommand);
 
-            Console.WriteLine("\nТеперь разбаним игрока");
+                string userInput = Console.ReadLine();
 
-            dataBase.UnBanPlayer(10);
-            dataBase.PrintAllPlayersInfo();
+                switch (userInput)
+                {
+                    case AddCommand:
+                        AddPlayerUI(dataBase);
+                        break;
+                    case DeleteCommand:
+                        DeletePlayerUI(dataBase);
+                        break;
+                    case BanCommand:
+                        BanPlayerUI(dataBase);
+                        break;
+                    case UnbanCommand:
+                        UnbanPlayerUI(dataBase);
+                        break;
+                    case ShowCommand:
+                        dataBase.PrintAllPlayersInfo();
+                        break;
+                    case ExitCommand:
+                        isUserExited = true;
+                        break;
+                    default:
+                        Console.WriteLine("Нет такой команды, попробуйте снова.");
+                        break;
+                }
+
+                Console.WriteLine("Для продолжения нажмите любую клавишу.");
+                Console.ReadKey();
+            }
+        }
+        static void PrintUI(string addCommand, string deleteCommand, string banCommand, string unbanCommand, string showCommand, string exitCommand)
+        {
+            Console.WriteLine("Введите команду для работы с базой данных:\n" +
+                $"{addCommand} - добавить игрока\n" +
+                $"{deleteCommand} - удалить игрока\n" +
+                $"{banCommand} - забанить игрока\n" +
+                $"{unbanCommand} - разбанить игрока\n" +
+                $"{showCommand} - показать список всех игроков\n" +
+                $"{exitCommand} - выход из программы\n");
+        }
+
+        static void AddPlayerUI(DataBase database)
+        {
+            int id;
+            Console.WriteLine("Введите id игрока");
+            id = ReadInt();
+
+            string nickname;
+            Console.WriteLine("Введите ник игрока");
+            nickname = Console.ReadLine();
+
+            int level;
+            Console.WriteLine("Введите уровень игрока");
+            level = ReadInt();
+
+            Player player = new Player(id,nickname, level);
+
+            database.AddPlayer(player);
+        }
+
+        static int ReadInt()
+        {
+            bool isIntEntered = false;
+            int parsedInt = 0;
+
+            while (isIntEntered == false)
+            {
+                string enteredString;
+
+                Console.WriteLine("Введите целое число:");
+                enteredString = Console.ReadLine();
+
+                isIntEntered = int.TryParse(enteredString, out parsedInt);
+
+                if (isIntEntered)
+                {
+                    Console.WriteLine($"Введенное число распознанно, это: {parsedInt}");
+                }
+                else
+                {
+                    Console.WriteLine("Вы ввели неверно, попробуйте ещё раз)\n");
+                }
+            }
+
+            return parsedInt;
+        }
+
+        static void DeletePlayerUI(DataBase database)
+        {
+            int id;
+            Console.WriteLine("Введите id игрока");
+            id = ReadInt();
+
+            database.RemovePlayerByIndex(id);
+        }
+
+        static void BanPlayerUI(DataBase database)
+        {
+            int id;
+            Console.WriteLine("Введите id игрока");
+            id = ReadInt();
+
+            database.BanPlayer(id);
+        }
+        
+        static void UnbanPlayerUI(DataBase database)
+        {
+            int id;
+            Console.WriteLine("Введите id игрока");
+            id = ReadInt();
+
+            database.UnbanPlayer(id);
         }
     }
 
@@ -44,8 +158,8 @@ namespace Functions.OOP.PlayersDataBase
         {
             int id = player.Id;
 
-            if (_players.ContainsKey(id) == false) 
-            { 
+            if (_players.ContainsKey(id) == false)
+            {
                 _players.Add(id, player);
             }
             else
@@ -68,9 +182,11 @@ namespace Functions.OOP.PlayersDataBase
 
         public void BanPlayer(int id)
         {
-            if(_players.ContainsKey(id))
+            if (_players.ContainsKey(id))
             {
-                _players[id].IsBanned = true;
+                _players[id].Ban();
+
+                Console.WriteLine("Игрок с таким id забанен");
             }
             else
             {
@@ -78,11 +194,13 @@ namespace Functions.OOP.PlayersDataBase
             }
         }
 
-        public void UnBanPlayer(int id)
+        public void UnbanPlayer(int id)
         {
             if (_players.ContainsKey(id))
             {
-                _players[id].IsBanned = false;
+                _players[id].Unban();
+
+                Console.WriteLine("Игрок с таким id разабанен");
             }
             else
             {
@@ -104,31 +222,34 @@ namespace Functions.OOP.PlayersDataBase
         private int _id;
         private string _nickname;
         private int _level = 0;
-        private bool _isBanned = false;
 
         public Player(int id, string nickname, int level)
         {
             _id = id;
             _nickname = nickname;
 
-            if(level > 0) 
-            { 
+            if (level > 0)
+            {
                 _level = level;
             }
         }
 
-        public int Id {  get { return _id; } }
-        public string Name { get { return _nickname;} }
-        public int Level { get { return _level;} }
-        public bool IsBanned { get { return _isBanned; } set { _isBanned = value;} }
+        public int Id { get { return _id; } }
+        public string Name { get { return _nickname; } }
+        public int Level { get { return _level; } }
+        public bool IsBanned { get; private set; }
 
         public void PrintInfo()
         {
-            Console.WriteLine($"ID {_id}: Игрок с ником {_nickname}, Уровень: {_level}, Забанен: {_isBanned}.");
+            Console.WriteLine($"ID {_id}: Игрок с ником {_nickname}, Уровень: {_level}, Забанен: {IsBanned}.");
         }
 
-        public void LevelUp() { _level ++;}
+        public void LevelUp() { _level++; }
 
-        public void LevelDown() { _level --;}
+        public void LevelDown() { _level--; }
+
+        public void Ban() { IsBanned = true; }
+
+        public void Unban() { IsBanned = false; }
     }
 }
