@@ -30,17 +30,13 @@ namespace Functions.OOP
 
     class Player
     {
-        private static int s_xMaxPosition = 100;
-        private static int s_xMinPosition = 0;
-        private static int s_yMaxPosition = 150;
-        private static int s_yMinPosition = 0;
         private int _xPosition;
         private int _yPosition;
 
         public Player(int xPosition, int yPosition, char character)
         {
-            _xPosition = SetValidPosition(xPosition, s_xMinPosition, s_xMaxPosition);
-            _yPosition = SetValidPosition(yPosition, s_yMinPosition, s_yMaxPosition);
+            XPosition = xPosition;
+            YPosition = yPosition;
             Character = character;
         }
 
@@ -48,15 +44,27 @@ namespace Functions.OOP
         public int XPosition
         {
             get => _xPosition;
-            private set { _xPosition = SetValidPosition(value, s_xMinPosition, s_xMaxPosition); }
+            private set 
+            {
+                int xMaxPosition = 100;
+                int xMinPosition = 0;
+
+                _xPosition = GetValidPosition(value, xMinPosition, xMaxPosition); 
+            }
         }
         public int YPosition
         {
             get => _yPosition;
-            private set { _yPosition = SetValidPosition(value, s_yMinPosition, s_yMaxPosition); }
+            private set 
+            {
+                int yMaxPosition = 150;
+                int yMinPosition = 0;
+
+                _yPosition = GetValidPosition(value, yMinPosition, yMaxPosition); 
+            }
         }
 
-        private int SetValidPosition(int position, int minValue, int maxValue)
+        private int GetValidPosition(int position, int minValue, int maxValue)
         {
             if(position >= minValue && position <= maxValue)
             {
