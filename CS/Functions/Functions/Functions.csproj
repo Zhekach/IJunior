@@ -50,6 +50,7 @@
     <Compile Include="Collections\PersonnelRecordsPro.cs" />
     <Compile Include="Collections\QueueInShop.cs" />
     <Compile Include="KanzasShuffle.cs" />
+    <Compile Include="OOP\Casino\Casino.cs" />
     <Compile Include="OOP\PlayersDataBase\PlayersDataBase.cs" />
     <Compile Include="OOP\WorkWithClasses.cs" />
     <Compile Include="OOP\WorkWithProperties.cs" />

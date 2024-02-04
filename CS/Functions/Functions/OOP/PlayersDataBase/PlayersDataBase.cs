@@ -5,7 +5,7 @@ namespace Functions.OOP.PlayersDataBase
 {
     internal class PlayersDataBase
     {
-        static void Main(string[] args)
+        static void Main1(string[] args)
         {
             const string AddCommand = "add";
             const string DeleteCommand = "del";
