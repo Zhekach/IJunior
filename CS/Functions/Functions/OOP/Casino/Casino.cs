@@ -6,15 +6,28 @@ namespace Functions.OOP.Casino
 {
     internal class Casino
     {
-        static void Main()
+        private bool _isUserExited = false;
+        public DealerDeck DealerDeck { get; private set; }
+        public PlayerDeck PlayerDeck { get; private set; }
+
+        public Casino() 
         {
             DealerDeck dealerDeck = new DealerDeck();
-
             PlayerDeck playerDeck = new PlayerDeck(dealerDeck);
 
-            bool isUserExited = false;
+            DealerDeck = dealerDeck;
 
-            while (isUserExited == false)
+            PlayerDeck = playerDeck;
+        }
+        static void Main()
+        {
+            Casino casino = new Casino();
+            casino.Run();
+        }
+
+        public void Run()
+        {
+            while (_isUserExited == false)
             {
                 Console.Clear();
 
@@ -25,16 +38,16 @@ namespace Functions.OOP.Casino
                 switch (userInput)
                 {
                     case (int)UserCommands.TakeOneCard:
-                        playerDeck.TakeOneCard();
+                        PlayerDeck.TakeOneCard();
                         break;
                     case (int)UserCommands.TakeSeveralCards:
-                        TakeSeveralCardsUI(playerDeck);
+                        TakeSeveralCardsUI(PlayerDeck);
                         break;
                     case (int)UserCommands.PrintMyCards:
-                        playerDeck.PrintInfo();
+                        PlayerDeck.PrintInfo();
                         break;
                     case (int)UserCommands.Exit:
-                        isUserExited = true;
+                        _isUserExited = true;
                         break;
                     default:
                         Console.WriteLine("You entered the wrong command. Try again, please.");
@@ -44,10 +57,9 @@ namespace Functions.OOP.Casino
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
             }
-
         }
 
-        static void PrintUI()
+        private void PrintUI()
         {
             Console.WriteLine("Enter command:\n" +
                 $"{(int)UserCommands.TakeOneCard} - if you need one more card\n" +
@@ -56,7 +68,7 @@ namespace Functions.OOP.Casino
                 $"{(int)UserCommands.Exit} - exit\n");
         }
 
-        static int ReadInt()
+        private int ReadInt()
         {
             bool isIntEntered = false;
             int parsedInt = 0;
@@ -83,7 +95,7 @@ namespace Functions.OOP.Casino
             return parsedInt;
         }
 
-        static void TakeSeveralCardsUI(PlayerDeck playerDeck)
+        private void TakeSeveralCardsUI(PlayerDeck playerDeck)
         {
             int cardsCount;
 
@@ -150,11 +162,11 @@ namespace Functions.OOP.Casino
     {
         private DealerDeck _dealerDeck;
 
-        public PlayerDeck(DealerDeck dealer)
+        public PlayerDeck(DealerDeck dealerDeck)
         {
-            if (_dealerDeck != null)
+            if (dealerDeck != null)
             {
-                _dealerDeck = dealer;
+                _dealerDeck = dealerDeck;
             }
             else
             {
