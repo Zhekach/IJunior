@@ -2,13 +2,20 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Functions.OOP.Casino
+namespace Functions.OOP.CasinoProgramm
 {
-    internal class Casino
+    internal class CasinoProgramm
+    {
+        static void Main()
+        {
+            Casino casino = new Casino();
+            casino.Run();
+        }
+    }
+    
+    class Casino
     {
         private bool _isUserExited = false;
-        public DealerDeck DealerDeck { get; private set; }
-        public PlayerDeck PlayerDeck { get; private set; }
 
         public Casino() 
         {
@@ -19,45 +26,9 @@ namespace Functions.OOP.Casino
 
             PlayerDeck = playerDeck;
         }
-        static void Main()
-        {
-            Casino casino = new Casino();
-            casino.Run();
-        }
 
-        public void Run()
-        {
-            while (_isUserExited == false)
-            {
-                Console.Clear();
-
-                PrintUI();
-
-                int userInput = ReadInt();
-
-                switch (userInput)
-                {
-                    case (int)UserCommands.TakeOneCard:
-                        PlayerDeck.TakeOneCard();
-                        break;
-                    case (int)UserCommands.TakeSeveralCards:
-                        TakeSeveralCardsUI(PlayerDeck);
-                        break;
-                    case (int)UserCommands.PrintMyCards:
-                        PlayerDeck.PrintInfo();
-                        break;
-                    case (int)UserCommands.Exit:
-                        _isUserExited = true;
-                        break;
-                    default:
-                        Console.WriteLine("You entered the wrong command. Try again, please.");
-                        break;
-                }
-
-                Console.WriteLine("Press any key to continue.");
-                Console.ReadKey();
-            }
-        }
+        public DealerDeck DealerDeck { get; private set; }
+        public PlayerDeck PlayerDeck { get; private set; }
 
         private void PrintUI()
         {
@@ -104,27 +75,61 @@ namespace Functions.OOP.Casino
             cardsCount = ReadInt();
             playerDeck.TakeSeveralCards(cardsCount);
         }
+
+        public void Run()
+        {
+            while (_isUserExited == false)
+            {
+                Console.Clear();
+
+                PrintUI();
+
+                int userInput = ReadInt();
+
+                switch (userInput)
+                {
+                    case (int)UserCommands.TakeOneCard:
+                        PlayerDeck.TakeOneCard();
+                        break;
+                    case (int)UserCommands.TakeSeveralCards:
+                        TakeSeveralCardsUI(PlayerDeck);
+                        break;
+                    case (int)UserCommands.PrintMyCards:
+                        PlayerDeck.PrintInfo();
+                        break;
+                    case (int)UserCommands.Exit:
+                        _isUserExited = true;
+                        break;
+                    default:
+                        Console.WriteLine("You entered the wrong command. Try again, please.");
+                        break;
+                }
+
+                Console.WriteLine("Press any key to continue.");
+                Console.ReadKey();
+            }
+        }
     }
 
     abstract class DeckOfCards
     {
-        protected List<Card> cards;
+        protected List<Card> Cards;
 
         protected DeckOfCards()
         {
-            cards = new List<Card>();
+            Cards = new List<Card>();
         }
 
         public void PrintInfo()
         {
-            foreach (Card card in cards)
+            foreach (Card card in Cards)
             {
                 card.PrintInfo();
             }
         }
     }
 
-    class DealerDeck : DeckOfCards
+    sealed class DealerDeck : DeckOfCards
     {
         public DealerDeck()
         {
@@ -133,22 +138,22 @@ namespace Functions.OOP.Casino
                 foreach (Suits suits in Enum.GetValues(typeof(Suits)))
                 {
                     Card card = new Card((Suits)suits, (Values)value);
-                    cards.Add(card);
+                    Cards.Add(card);
                 }
             }
         }
 
         public Card DealCard()
         {
-            if (cards.Count > 0)
+            if (Cards.Count > 0)
             {
                 Card card;
                 Random random = new Random();
-                int cardsInDeck = cards.Count;
+                int cardsInDeck = Cards.Count;
                 int cardIndex = random.Next(0, cardsInDeck);
 
-                card = cards[cardIndex];
-                cards.RemoveAt(cardIndex);
+                card = Cards[cardIndex];
+                Cards.RemoveAt(cardIndex);
                 return card;
             }
             else
@@ -158,7 +163,7 @@ namespace Functions.OOP.Casino
         }
     }
 
-    class PlayerDeck : DeckOfCards
+     sealed class PlayerDeck : DeckOfCards
     {
         private DealerDeck _dealerDeck;
 
@@ -189,7 +194,7 @@ namespace Functions.OOP.Casino
 
             if (nextCard != null)
             {
-                cards.Add(nextCard);
+                Cards.Add(nextCard);
 
                 Console.WriteLine("You took card:");
                 nextCard.PrintInfo();
@@ -220,14 +225,14 @@ namespace Functions.OOP.Casino
 
     class Card
     {
-        public Suits Suit { get; private set; }
-        public Values Value { get; private set; }
-
         public Card(Suits suit, Values value)
         {
             Suit = suit;
             Value = value;
         }
+
+        public Suits Suit { get; private set; }
+        public Values Value { get; private set; }
 
         public void PrintInfo()
         {
