@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Functions.OOP.CasinoProgramm
 {
@@ -29,6 +28,40 @@ namespace Functions.OOP.CasinoProgramm
 
         public DealerDeck DealerDeck { get; private set; }
         public PlayerDeck PlayerDeck { get; private set; }
+
+        public void Run()
+        {
+            while (_isUserExited == false)
+            {
+                Console.Clear();
+
+                PrintUI();
+
+                int userInput = ReadInt();
+
+                switch (userInput)
+                {
+                    case (int)UserCommands.TakeOneCard:
+                        PlayerDeck.TakeOneCard();
+                        break;
+                    case (int)UserCommands.TakeSeveralCards:
+                        TakeSeveralCardsUI(PlayerDeck);
+                        break;
+                    case (int)UserCommands.PrintMyCards:
+                        PlayerDeck.PrintInfo();
+                        break;
+                    case (int)UserCommands.Exit:
+                        _isUserExited = true;
+                        break;
+                    default:
+                        Console.WriteLine("You entered the wrong command. Try again, please.");
+                        break;
+                }
+
+                Console.WriteLine("Press any key to continue.");
+                Console.ReadKey();
+            }
+        }
 
         private void PrintUI()
         {
@@ -75,40 +108,6 @@ namespace Functions.OOP.CasinoProgramm
             cardsCount = ReadInt();
             playerDeck.TakeSeveralCards(cardsCount);
         }
-
-        public void Run()
-        {
-            while (_isUserExited == false)
-            {
-                Console.Clear();
-
-                PrintUI();
-
-                int userInput = ReadInt();
-
-                switch (userInput)
-                {
-                    case (int)UserCommands.TakeOneCard:
-                        PlayerDeck.TakeOneCard();
-                        break;
-                    case (int)UserCommands.TakeSeveralCards:
-                        TakeSeveralCardsUI(PlayerDeck);
-                        break;
-                    case (int)UserCommands.PrintMyCards:
-                        PlayerDeck.PrintInfo();
-                        break;
-                    case (int)UserCommands.Exit:
-                        _isUserExited = true;
-                        break;
-                    default:
-                        Console.WriteLine("You entered the wrong command. Try again, please.");
-                        break;
-                }
-
-                Console.WriteLine("Press any key to continue.");
-                Console.ReadKey();
-            }
-        }
     }
 
     abstract class DeckOfCards
@@ -118,6 +117,19 @@ namespace Functions.OOP.CasinoProgramm
         protected DeckOfCards()
         {
             Cards = new List<Card>();
+        }
+
+        public void Shuffle()
+        {
+            Random random = new Random();
+
+            for (int i = Cards.Count-1; i >= 1; i--)
+            {
+                int j = random.Next(i+1);
+                Card tempCard = Cards[j];
+                Cards[j] = Cards[i];
+                Cards[i] = tempCard;
+            }
         }
 
         public void PrintInfo()
@@ -141,19 +153,15 @@ namespace Functions.OOP.CasinoProgramm
                     Cards.Add(card);
                 }
             }
+            this.Shuffle();
         }
 
         public Card DealCard()
         {
             if (Cards.Count > 0)
             {
-                Card card;
-                Random random = new Random();
-                int cardsInDeck = Cards.Count;
-                int cardIndex = random.Next(0, cardsInDeck);
-
-                card = Cards[cardIndex];
-                Cards.RemoveAt(cardIndex);
+                Card card = Cards[0];
+                Cards.RemoveAt(0);
                 return card;
             }
             else
