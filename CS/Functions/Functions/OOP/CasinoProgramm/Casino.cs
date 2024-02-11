@@ -40,15 +40,19 @@ namespace Functions.OOP.CasinoProgramm
                     case (int)UserCommands.TakeOneCard:
                         _dealer.TransferOneCard();
                         break;
+
                     case (int)UserCommands.TakeSeveralCards:
                         TakeSeveralCardsUI(_dealer);
                         break;
+
                     case (int)UserCommands.PrintMyCards:
                         _player.PrintCardsInfo();
                         break;
+
                     case (int)UserCommands.Exit:
                         _isUserExited = true;
                         break;
+
                     default:
                         Console.WriteLine("You entered the wrong command. Try again, please.");
                         break;
@@ -126,20 +130,21 @@ namespace Functions.OOP.CasinoProgramm
                 }
             }
 
-            this.Shuffle();
+            Shuffle();
         }
 
-        public Card GiveCard()
+        public bool TryGiveCard(out Card card)
         {
             if (_cards.Count > 0)
             {
-                Card card = _cards[0];
+                card = _cards[0];
                 _cards.RemoveAt(0);
-                return card;
+                return true;
             }
             else
             {
-                return null;
+                card = null;
+                return false;
             }
         }
 
@@ -178,11 +183,9 @@ namespace Functions.OOP.CasinoProgramm
 
         public void TransferOneCard()
         {
-            Card tempCard = null;
+            Card tempCard;
 
-            tempCard = _deckOfCards.GiveCard();
-
-            if (tempCard != null)
+            if (_deckOfCards.TryGiveCard(out tempCard))
             {
                 _player.TakeCard(tempCard);
             }
@@ -238,6 +241,7 @@ namespace Functions.OOP.CasinoProgramm
     {
         private Suits _suit;
         private Values _value;
+
         public Card(Suits suit, Values value)
         {
             _suit = suit;
