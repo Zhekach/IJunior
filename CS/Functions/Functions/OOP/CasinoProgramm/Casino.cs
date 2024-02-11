@@ -11,23 +11,19 @@ namespace Functions.OOP.CasinoProgramm
             casino.Run();
         }
     }
-    
+
     class Casino
     {
         private bool _isUserExited = false;
+        private Dealer _dealer;
+        private Player _player;
 
-        public Casino() 
+        public Casino()
         {
-            DealerDeck dealerDeck = new DealerDeck();
-            PlayerDeck playerDeck = new PlayerDeck(dealerDeck);
-
-            DealerDeck = dealerDeck;
-
-            PlayerDeck = playerDeck;
+            _player = new Player();
+            DeckOfCards deckOfCards = new DeckOfCards();
+            _dealer = new Dealer(_player, deckOfCards);
         }
-
-        public DealerDeck DealerDeck { get; private set; }
-        public PlayerDeck PlayerDeck { get; private set; }
 
         public void Run()
         {
@@ -42,13 +38,13 @@ namespace Functions.OOP.CasinoProgramm
                 switch (userInput)
                 {
                     case (int)UserCommands.TakeOneCard:
-                        PlayerDeck.TakeOneCard();
+                        _dealer.TransferOneCard();
                         break;
                     case (int)UserCommands.TakeSeveralCards:
-                        TakeSeveralCardsUI(PlayerDeck);
+                        TakeSeveralCardsUI(_dealer);
                         break;
                     case (int)UserCommands.PrintMyCards:
-                        PlayerDeck.PrintInfo();
+                        _player.PrintCardsInfo();
                         break;
                     case (int)UserCommands.Exit:
                         _isUserExited = true;
@@ -99,69 +95,46 @@ namespace Functions.OOP.CasinoProgramm
             return parsedInt;
         }
 
-        private void TakeSeveralCardsUI(PlayerDeck playerDeck)
+        private void TakeSeveralCardsUI(Dealer dealer)
         {
             int cardsCount;
 
             Console.WriteLine("Enter the number of cards you need");
 
             cardsCount = ReadInt();
-            playerDeck.TakeSeveralCards(cardsCount);
+            dealer.TransferSeveralCards(cardsCount);
         }
     }
 
-    abstract class DeckOfCards
+    class DeckOfCards
     {
-        protected List<Card> Cards;
+        private List<Card> _cards;
 
-        protected DeckOfCards()
+        public DeckOfCards()
         {
-            Cards = new List<Card>();
-        }
+            _cards = new List<Card>();
 
-        public void Shuffle()
-        {
-            Random random = new Random();
+            Array values = Enum.GetValues(typeof(Values));
+            Array suits = Enum.GetValues(typeof(Suits));
 
-            for (int i = Cards.Count-1; i >= 1; i--)
+            foreach (Values value in values)
             {
-                int j = random.Next(i+1);
-                Card tempCard = Cards[j];
-                Cards[j] = Cards[i];
-                Cards[i] = tempCard;
-            }
-        }
-
-        public void PrintInfo()
-        {
-            foreach (Card card in Cards)
-            {
-                card.PrintInfo();
-            }
-        }
-    }
-
-    sealed class DealerDeck : DeckOfCards
-    {
-        public DealerDeck()
-        {
-            foreach (Values value in Enum.GetValues(typeof(Values)))
-            {
-                foreach (Suits suits in Enum.GetValues(typeof(Suits)))
+                foreach (Suits suit in suits)
                 {
-                    Card card = new Card((Suits)suits, (Values)value);
-                    Cards.Add(card);
+                    Card card = new Card((Suits)suit, (Values)value);
+                    _cards.Add(card);
                 }
             }
+
             this.Shuffle();
         }
 
-        public Card DealCard()
+        public Card GiveCard()
         {
-            if (Cards.Count > 0)
+            if (_cards.Count > 0)
             {
-                Card card = Cards[0];
-                Cards.RemoveAt(0);
+                Card card = _cards[0];
+                _cards.RemoveAt(0);
                 return card;
             }
             else
@@ -169,59 +142,63 @@ namespace Functions.OOP.CasinoProgramm
                 return null;
             }
         }
+
+        public void Shuffle()
+        {
+            Random random = new Random();
+
+            for (int i = _cards.Count - 1; i >= 1; i--)
+            {
+                int j = random.Next(_cards.Count);
+                Card tempCard = _cards[j];
+                _cards[j] = _cards[i];
+                _cards[i] = tempCard;
+            }
+        }
+
+        public void PrintInfo()
+        {
+            foreach (Card card in _cards)
+            {
+                card.PrintInfo();
+            }
+        }
     }
 
-     sealed class PlayerDeck : DeckOfCards
+    class Dealer
     {
-        private DealerDeck _dealerDeck;
+        private Player _player;
+        private DeckOfCards _deckOfCards;
 
-        public PlayerDeck(DealerDeck dealerDeck)
+        public Dealer(Player player, DeckOfCards deckOfCards)
         {
-            if (dealerDeck != null)
-            {
-                _dealerDeck = dealerDeck;
-            }
-            else
-            {
-                Console.WriteLine("It looks like you have no dealer =(");
-            } 
+            _player = player;
+            _deckOfCards = deckOfCards;
         }
 
-        public void TakeOneCard()
+        public void TransferOneCard()
         {
-            Card nextCard = null;
+            Card tempCard = null;
 
-            if (_dealerDeck != null)
+            tempCard = _deckOfCards.GiveCard();
+
+            if (tempCard != null)
             {
-                nextCard = _dealerDeck.DealCard();
+                _player.TakeCard(tempCard);
             }
             else
             {
-                Console.WriteLine("It looks like you have no more dealer =(");
-            }
-
-            if (nextCard != null)
-            {
-                Cards.Add(nextCard);
-
-                Console.WriteLine("You took card:");
-                nextCard.PrintInfo();
-            }
-            else
-            {
-                Console.WriteLine("You couldn't take a card. It looks like the dealer has run out of them =(");
+                Console.WriteLine("It looks like there are no more cards in the deck");
             }
         }
 
-        public void TakeSeveralCards(int cardsCount)
+        public void TransferSeveralCards(int count)
         {
-            if (cardsCount >= 1)
+            if (count >= 1)
             {
-                for (int i = 0; i < cardsCount; i++)
+                for (int i = 0; i < count; i++)
                 {
-                    TakeOneCard();
-                    Console.WriteLine("Wait a second");
-                    System.Threading.Thread.Sleep(1000);
+                    TransferOneCard();
                 }
             }
             else
@@ -231,20 +208,45 @@ namespace Functions.OOP.CasinoProgramm
         }
     }
 
-    class Card
+    class Player
     {
-        public Card(Suits suit, Values value)
+        private List<Card> _cards;
+
+        public Player()
         {
-            Suit = suit;
-            Value = value;
+            _cards = new List<Card>();
         }
 
-        public Suits Suit { get; private set; }
-        public Values Value { get; private set; }
+        public void TakeCard(Card card)
+        {
+            _cards.Add(card);
+
+            Console.WriteLine("You took card:");
+            card.PrintInfo();
+        }
+
+        public void PrintCardsInfo()
+        {
+            foreach (Card card in _cards)
+            {
+                card.PrintInfo();
+            }
+        }
+    }
+
+    class Card
+    {
+        private Suits _suit;
+        private Values _value;
+        public Card(Suits suit, Values value)
+        {
+            _suit = suit;
+            _value = value;
+        }
 
         public void PrintInfo()
         {
-            Console.WriteLine($"Card is {Value} of {Suit}");
+            Console.WriteLine($"Card is {_value} of {_suit}");
         }
     }
 
