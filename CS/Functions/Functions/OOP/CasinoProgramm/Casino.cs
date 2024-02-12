@@ -160,14 +160,6 @@ namespace Functions.OOP.CasinoProgramm
                 _cards[i] = tempCard;
             }
         }
-
-        public void PrintInfo()
-        {
-            foreach (Card card in _cards)
-            {
-                card.PrintInfo();
-            }
-        }
     }
 
     class Dealer
