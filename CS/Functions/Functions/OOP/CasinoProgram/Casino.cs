@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Functions.OOP.CasinoProgramm
+namespace Functions.OOP.CasinoProgram
 {
-    internal class CasinoProgramm
+    internal class CasinoProgram
     {
         static void Main1()
         {
