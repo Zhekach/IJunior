@@ -52,6 +52,7 @@
     <Compile Include="Collections\QueueInShop.cs" />
     <Compile Include="KanzasShuffle.cs" />
     <Compile Include="OOP\CasinoProgramm\Casino.cs" />
+    <Compile Include="OOP\Library\Library.cs" />
     <Compile Include="OOP\PlayersDataBase\PlayersDataBase.cs" />
     <Compile Include="OOP\WorkWithClasses.cs" />
     <Compile Include="OOP\WorkWithProperties.cs" />

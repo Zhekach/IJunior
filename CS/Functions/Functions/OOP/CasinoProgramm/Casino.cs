@@ -5,7 +5,7 @@ namespace Functions.OOP.CasinoProgramm
 {
     internal class CasinoProgramm
     {
-        static void Main()
+        static void Main1()
         {
             Casino casino = new Casino();
             casino.Run();
