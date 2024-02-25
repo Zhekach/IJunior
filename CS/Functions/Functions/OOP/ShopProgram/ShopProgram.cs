@@ -8,7 +8,7 @@ namespace Functions.OOP.ShopProgram
 {
     internal class ShopProgram
     {
-        static void Main()
+        static void Main1()
         {
             Shop shop = new Shop();
             shop.Run();
