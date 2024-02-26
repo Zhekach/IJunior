@@ -14,8 +14,8 @@ namespace Functions.OOP.TrainProgram
 
     class RailwayStation
     {
+        private const string UserExitCommand = "выход";
         private bool _isUserExited;
-        private const string UserExitCommand = "e";
 
         public void Run()
         {
@@ -29,7 +29,7 @@ namespace Functions.OOP.TrainProgram
                 train.Depart();
 
                 Console.WriteLine("Для создания следующего поезда введите любой текст\n" +
-                                  "Для выхода введите \"выход\".");
+                                  $"Для выхода введите \"{UserExitCommand}\".");
 
                 if(UserExitCommand == Console.ReadLine())
                 {
@@ -123,7 +123,6 @@ namespace Functions.OOP.TrainProgram
 
         private void BuildCars()
         {
-
             int unallocatedPassengers = _passengersCount;
 
             while (unallocatedPassengers > 0)
@@ -134,7 +133,6 @@ namespace Functions.OOP.TrainProgram
 
                 Console.WriteLine($"Осталось распределить {unallocatedPassengers} пассажиров.");
                 Console.WriteLine("Введите тип вагона:");
-
 
                 foreach(var type in _carTypes)
                 {
@@ -160,7 +158,6 @@ namespace Functions.OOP.TrainProgram
                 Console.WriteLine("Для продолжения нажмите любую клавишу.");
                 Console.ReadKey();
             }
-
         }
 
         private void PrintUI()
@@ -241,14 +238,14 @@ namespace Functions.OOP.TrainProgram
 
     class TrainCar
     {
-        public string Type { get; private set; }
-        public int Capacity { get; private set; }
-
         public TrainCar(string type, int capacity)
         {
             Type = type;
             Capacity = capacity;
         }
+
+        public string Type { get; private set; }
+        public int Capacity { get; private set; }
 
         public void PrintInfo()
         {
