@@ -16,17 +16,30 @@ namespace Functions.OOP.TrainProgram
     {
         private const string UserExitCommand = "выход";
         private bool _isUserExited;
+        private List<Train> _trainList = new List<Train>();
 
         public void Run()
         {
             while(_isUserExited == false)
             {
+                Console.Clear();
+                Console.WriteLine("Все поезда этого вокзала:");
+
+                foreach(Train train in _trainList)
+                {
+                    train.PrintInfo(); 
+                }
+
+                Console.WriteLine("Для создания нового поезда нажмите любую клавишу\n");
+                Console.ReadKey();
+
                 TrainBuilder trainBuilder = new TrainBuilder();
-                Train train = trainBuilder.GetTrain();
+                Train newTrain = trainBuilder.CreateTrain();
+                _trainList.Add(newTrain);
 
                 Console.WriteLine("Для отправки поезда введите любой текст.");
 
-                train.Depart();
+                newTrain.Depart();
 
                 Console.WriteLine("Для создания следующего поезда введите любой текст\n" +
                                   $"Для выхода введите \"{UserExitCommand}\".");
@@ -63,6 +76,16 @@ namespace Functions.OOP.TrainProgram
             _cars = new List<TrainCar>();
         }
 
+        public Train CreateTrain()
+        {
+            BuildRoute();
+            BuildPassangers();
+            BuildCars();
+
+            Train train = new Train(_route, _passengersCount, _cars);
+            return train;
+        }
+
         private void BuildRoute()
         {
             bool isRouteOk = false;
@@ -71,7 +94,7 @@ namespace Functions.OOP.TrainProgram
 
             while(isRouteOk == false)
             {
-                PrintUI();
+                ShowBuildingTrain();
 
                 Console.WriteLine("Введите пункт отправления: ");
                 arrival = Console.ReadLine();
@@ -96,7 +119,7 @@ namespace Functions.OOP.TrainProgram
 
         private void BuildPassangers()
         {
-            PrintUI();
+            ShowBuildingTrain();
 
             int maxPassengers = 0;
             bool isMaxPassengersOk = false;
@@ -127,7 +150,7 @@ namespace Functions.OOP.TrainProgram
 
             while (unallocatedPassengers > 0)
             {
-                PrintUI();
+                ShowBuildingTrain();
                 string carType;
                 TrainCar car = null;
 
@@ -160,11 +183,12 @@ namespace Functions.OOP.TrainProgram
             }
         }
 
-        private void PrintUI()
+        private void ShowBuildingTrain()
         {
             Console.Clear();
 
-            Console.WriteLine("Текущий поезд:");
+            Console.WriteLine("\n===================\n");
+            Console.WriteLine("Сейчас составляется план поезда:");
             _route.PrintInfo();
             Console.WriteLine($"Продано билетов: {_passengersCount}");
             Console.WriteLine("Список вагонов:");
@@ -175,16 +199,6 @@ namespace Functions.OOP.TrainProgram
             }
 
             Console.WriteLine("\n===================\n");
-        }
-
-        public Train GetTrain()
-        {
-            BuildRoute();
-            BuildPassangers();
-            BuildCars();
-
-            Train train = new Train(_route, _passengersCount, _cars);
-            return train;
         }
 
         private int ReadInt()
@@ -233,6 +247,19 @@ namespace Functions.OOP.TrainProgram
         {
             _isDeparted = true;
             Console.WriteLine("Поезд отправился. В добрый путь.");
+        }
+
+        public void PrintInfo()
+        {
+            Console.WriteLine("Поезд:");
+            _route.PrintInfo();
+            Console.WriteLine($"Продано билетов: {_passengersCount}");
+            Console.WriteLine("Список вагонов:");
+
+            foreach (TrainCar car in _cars)
+            {
+                car.PrintInfo();
+            }
         }
     }
 
