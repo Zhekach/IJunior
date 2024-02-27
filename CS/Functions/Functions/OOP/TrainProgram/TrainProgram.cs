@@ -5,7 +5,7 @@ namespace Functions.OOP.TrainProgram
 {
     internal class TrainProgram
     {
-        static void Main1()
+        static void Main()
         {
             RailwayStation railwayStation = new RailwayStation();   
             railwayStation.Run();
@@ -63,7 +63,6 @@ namespace Functions.OOP.TrainProgram
             {"СВ", 20},
             {"Люкс", 8},
         };
-        private Train _train;
         private Route _route;
         private int _passengersCount;
         private List<TrainCar> _cars;
