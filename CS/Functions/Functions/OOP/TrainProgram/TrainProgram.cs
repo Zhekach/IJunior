@@ -77,6 +77,10 @@ namespace Functions.OOP.TrainProgram
 
         public Train CreateTrain()
         {
+            _route = new Route();
+            _passengersCount = 0;
+            _cars = new List<TrainCar>();
+
             BuildRoute();
             BuildPassangers();
             BuildCars();
