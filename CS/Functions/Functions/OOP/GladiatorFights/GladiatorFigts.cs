@@ -35,16 +35,20 @@ namespace Functions.OOP.GladiatorFights
 
         public void StartBattle (Warrior warrior1, Warrior warrior2)
         {
-            while(warrior1.Health > 0 || warrior2.Health > 0)
+            while(warrior1.Health > 0 && warrior2.Health > 0)
             {
+                Console.WriteLine("\n-====Новый ход!====-\n");
+
                 warrior1.CauseClassDamage(warrior2 );
                 if(warrior2.Health > 0 )
                 {
                     warrior2.CauseClassDamage(warrior1 );
                 }
-                
-                warrior1.PrintInfo() ;
-                warrior2.PrintInfo() ;
+
+                Console.WriteLine("---Итоги---");
+
+                warrior1.PrintHPInfo() ;
+                warrior2.PrintHPInfo() ;
 
                 Thread.Sleep(5000);
             }
@@ -53,6 +57,7 @@ namespace Functions.OOP.GladiatorFights
 
     abstract class Fighter
     {
+        protected string _className;
         private int _baseParameterValue = 45;
         protected float _power;
         protected float _armor;
@@ -73,25 +78,51 @@ namespace Functions.OOP.GladiatorFights
 
         public void PrintBaseInfo()
         {
-            Console.WriteLine($"Жизнь: {Health}\n" +
+            Console.WriteLine($"Класс: {_className}\n" +
+                              $"Жизнь: {Health}\n" +
                               $"Сила: {_power}\n" +
                               $"Защита: {_armor}");
         }
 
-        protected void CauseBaseDamage(Fighter enemy, float damage = 3)
+        public void PrintHPInfo()
+        {
+            Console.WriteLine($"{_className}: Уровень жизни {Health} ");
+        }
+
+        protected void CauseBaseDamage(Fighter enemy, float damage)
         {
             damage = _power;
+
+            Console.WriteLine($"{_className}: Пытается нанести {damage} урона");
+
             enemy.TakeDamage(damage);
         }
 
         public abstract void CauseClassDamage(Fighter enemy);
+
+        public void TakeBaseDamage(float damage)
+        {
+            if (damage > _armor / _armorDivider)
+            {
+                Health -= (damage - _armor / _armorDivider);
+                Console.WriteLine($"{_className}: Получено {damage - _armor / _armorDivider} урона");
+            }
+            else
+            {
+                Console.WriteLine($"{_className}: Урон не прошёл");
+            }
+
+            if (Health < 0)
+            {
+                Health = 0;
+            }
+        }
 
         public abstract void TakeDamage(float damage);
     }
 
     abstract class Warrior : Fighter
     {
-        protected string _name;
         protected float _bonusParameter;
         protected float _healthBonus;
         protected float _damageBonus;
@@ -109,7 +140,6 @@ namespace Functions.OOP.GladiatorFights
 
         public void PrintInfo()
         {
-            Console.WriteLine($"Класс: {_name}");
             PrintBaseInfo();
             Console.WriteLine($"{_criticalDescription}: {_criticalChance}");
             Console.WriteLine("=========");
@@ -120,7 +150,7 @@ namespace Functions.OOP.GladiatorFights
     { 
         public Knight():base()
         {
-            _name = "Рыцарь";
+            _className = "Рыцарь";
             _criticalDescription = "Шанс крита";
 
             _damageBonus = _bonusParameter * 2 / 3;
@@ -132,37 +162,24 @@ namespace Functions.OOP.GladiatorFights
 
         public override void CauseClassDamage(Fighter enemy)
         {
-            float resultDamage;
+            float damage;
 
             if(_random.Next(_baseBonusValue) < _criticalChance)
             {
-                resultDamage = _power * _criticalMultiplier;
-                Console.WriteLine("Критическая атака");
+                damage = _power * _criticalMultiplier;
+                Console.WriteLine($"{_className}: Критическая атака");
             }
             else
             {
-                resultDamage = _damageBonus;
+                damage = _damageBonus;
             }
 
-            CauseBaseDamage(enemy);
+            CauseBaseDamage(enemy, damage);
         }
 
         public override void TakeDamage(float damage)
         {
-            if(damage > _armor/2)
-            {
-                Health -= (damage - _armor/2);
-                Console.WriteLine($"Получено {damage - _armor} урона");
-            }
-            else
-            {
-                Console.WriteLine("Урон не прошёл");
-            }
-
-            if(Health< 0)
-            {
-               Health = 0;
-            }
+            TakeBaseDamage(damage);
         }
     }
 
@@ -170,7 +187,7 @@ namespace Functions.OOP.GladiatorFights
     {
         public Guardian() : base()
         {
-            _name = "Защитник";
+            _className = "Защитник";
             _criticalDescription = "Шанс блока";
 
             _armorBonus = _bonusParameter * 2 / 3;
@@ -182,7 +199,7 @@ namespace Functions.OOP.GladiatorFights
 
         public override void CauseClassDamage(Fighter enemy)
         {
-            CauseBaseDamage(enemy);
+            CauseBaseDamage(enemy, _power);
         }
 
         public override void TakeDamage(float damage)
@@ -190,16 +207,11 @@ namespace Functions.OOP.GladiatorFights
             if(_random.Next(_baseBonusValue) < _criticalChance)
             {
                 damage = 0;
-                Console.WriteLine("Блок атаки");
+                Console.WriteLine($"{_className}: Блок атаки");
             }
-            else if (damage > _armor / 2)
+            else if (damage > _armor / _armorDivider)
             {
-                Health -= (damage - _armor / 2);
-            }
-
-            if (Health < 0)
-            {
-                Health = 0;
+                TakeBaseDamage(damage);
             }
         }
     }
