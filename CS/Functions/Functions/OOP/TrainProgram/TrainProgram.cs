@@ -263,6 +263,11 @@ namespace Functions.OOP.TrainProgram
             {
                 car.PrintInfo();
             }
+
+            if (_isDeparted)
+            {
+                Console.WriteLine("В пути.");
+            }
         }
     }
 
