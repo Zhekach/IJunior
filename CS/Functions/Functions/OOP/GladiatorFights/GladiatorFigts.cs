@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Functions.OOP.GladiatorFights
 {
@@ -14,10 +15,9 @@ namespace Functions.OOP.GladiatorFights
 
     class Arena
     {
-        private bool _isUserExited = false;
         private Fighter _fighterFirst;
         private Fighter _fighterSecond;
-        private Dictionary<int, Fighter> _fightersDictionary;
+        private readonly Dictionary<int, Fighter> _fightersDictionary;
 
         public Arena()
         {
@@ -89,7 +89,7 @@ namespace Functions.OOP.GladiatorFights
             Console.Clear();
             Console.WriteLine("Введите номер типа бойца:");
 
-            foreach(KeyValuePair<int, Fighter> pair in _fightersDictionary)
+            foreach (KeyValuePair<int, Fighter> pair in _fightersDictionary)
             {
                 Console.WriteLine($"Номер {pair.Key} - {pair.Value.ClassName}");
             }
@@ -97,36 +97,14 @@ namespace Functions.OOP.GladiatorFights
 
             int userInput = ReadInt();
 
-            if(_fightersDictionary.ContainsKey(userInput))
+            if (_fightersDictionary.ContainsKey(userInput))
             {
-                fighter = _fightersDictionary[userInput]; 
+                fighter = _fightersDictionary[userInput].Clone();
             }
             else
             {
                 Console.WriteLine("Введено некорректное значение, будет рыцарь)");
                 fighter = new Knight();
-            }
-            switch (userInput)
-            {
-                case (int)FighterClasses.Knight:
-                    fighter = new Knight();
-                    break;
-                case (int)FighterClasses.Guardian:
-                    fighter = new Guardian();
-                    break;
-                case (int)FighterClasses.Assassin:
-                    fighter = new Assassin();
-                    break;
-                case (int)FighterClasses.Healer:
-                    fighter = new Healer();
-                    break;
-                case (int)FighterClasses.Warlock:
-                    fighter = new Warlock();
-                    break;
-                default:
-                    fighter = new Knight();
-                    Console.WriteLine("Введено некорректное значение, пусть будет рыцарь)");
-                    break;
             }
 
             return fighter;
@@ -200,9 +178,9 @@ namespace Functions.OOP.GladiatorFights
 
     abstract class Fighter
     {
-        private int _baseHealthValue = 45;
-        private int _basePowerValue = 15;
-        private int _baseArmorValue = 30;
+        private readonly int _baseHealthValue = 45;
+        private readonly int _basePowerValue = 15;
+        private readonly int _baseArmorValue = 30;
         protected float HealthMax;
         protected float Power;
         protected float Armor;
@@ -226,6 +204,8 @@ namespace Functions.OOP.GladiatorFights
         {
             Console.WriteLine($"{ClassName}: Уровень жизни {Health} ");
         }
+
+        public abstract Fighter Clone();
 
         public abstract void Attack(Fighter enemy);
 
@@ -309,6 +289,11 @@ namespace Functions.OOP.GladiatorFights
             Health += _healthBonus;
         }
 
+        public override Fighter Clone()
+        {
+            return new Knight();
+        }
+
         public override void Attack(Fighter enemy)
         {
             float damage;
@@ -346,6 +331,11 @@ namespace Functions.OOP.GladiatorFights
             Health += _healthBonus;
         }
 
+        public override Fighter Clone()
+        {
+            return new Guardian();
+        }
+
         public override void Attack(Fighter enemy)
         {
             AttackBase(enemy, Power);
@@ -355,7 +345,6 @@ namespace Functions.OOP.GladiatorFights
         {
             if (_random.Next(_criticalChanceMax) < _criticalChance)
             {
-                damage = 0;
                 Console.WriteLine($"{ClassName}: Блок атаки");
             }
             else if (damage > Armor / ArmorDivider)
@@ -381,6 +370,11 @@ namespace Functions.OOP.GladiatorFights
             Armor += _armorBonus;
         }
 
+        public override Fighter Clone()
+        {
+            return new Assassin();
+        }
+
         public override void Attack(Fighter enemy)
         {
             AttackBase(enemy, Power);
@@ -390,7 +384,6 @@ namespace Functions.OOP.GladiatorFights
         {
             if (_random.Next(_baseBonusValue) < _criticalChance)
             {
-                damage = 0;
                 Console.WriteLine($"{ClassName}: Уворот от атаки");
             }
             else if (damage > Armor / ArmorDivider)
@@ -433,6 +426,11 @@ namespace Functions.OOP.GladiatorFights
             _spellDescription = "Лечение себя";
         }
 
+        public override Fighter Clone()
+        {
+            return new Healer();
+        }
+
         public override void Attack(Fighter enemy)
         {
             AttackBase(enemy, Power);
@@ -466,6 +464,11 @@ namespace Functions.OOP.GladiatorFights
         {
             ClassName = "Боевой маг";
             _spellDescription = "Урон магией";
+        }
+
+        public override Fighter Clone()
+        {
+            return new Warlock();
         }
 
         public override void Attack(Fighter enemy)
