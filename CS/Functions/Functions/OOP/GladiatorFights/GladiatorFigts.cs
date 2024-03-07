@@ -1,10 +1,5 @@
-﻿using Functions.OOP.CasinoProgram;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Functions.OOP.GladiatorFights
 {
@@ -36,27 +31,30 @@ namespace Functions.OOP.GladiatorFights
             };
         }
 
+
         public void Run()
         {
-            while (_isUserExited == false)
+            bool isUserExited = false;
+
+            while (isUserExited == false)
             {
-                PrintUI();
+                PrintUi();
 
                 int userInput = ReadInt();
 
                 switch (userInput)
                 {
                     case (int)UserCommands.SelectFirstFighter:
-                        _fighterFirst = SelectFighter();
+                        _fighterFirst = CreateFighter();
                         break;
                     case (int)UserCommands.SelectSecondFighter:
-                        _fighterSecond = SelectFighter();
+                        _fighterSecond = CreateFighter();
                         break;
                     case (int)UserCommands.StartBattle:
-                        StartBattle(_fighterFirst, _fighterSecond);
+                        PerformBattle(_fighterFirst, _fighterSecond);
                         break;
                     case (int)UserCommands.Exit:
-                        _isUserExited = true;
+                        isUserExited = true;
                         break;
                     default:
                         Console.WriteLine("Вы ввели неверную команду. Попробуйте снова.");
@@ -65,7 +63,7 @@ namespace Functions.OOP.GladiatorFights
             }
         }
 
-        private void PrintUI()
+        private void PrintUi()
         {
             Console.Clear();
             Console.WriteLine("Введите команду:\n" +
@@ -84,7 +82,7 @@ namespace Functions.OOP.GladiatorFights
             }
         }
 
-        private Fighter SelectFighter()
+        private Fighter CreateFighter()
         {
             Fighter fighter;
 
@@ -127,16 +125,25 @@ namespace Functions.OOP.GladiatorFights
                     break;
                 default:
                     fighter = new Knight();
-                    Console.WriteLine("Введено некорректное значение, будет рыцарь)");
+                    Console.WriteLine("Введено некорректное значение, пусть будет рыцарь)");
                     break;
             }
 
             return fighter;
         }
 
-        private void StartBattle(Fighter fighter1, Fighter fighter2)
+        private void PerformBattle(Fighter fighter1, Fighter fighter2)
         {
             Console.Clear();
+
+            if (fighter1 == null || fighter2 == null)
+            {
+                Console.WriteLine("Бойцы не выбраны. Сделайте выбор снова.\n" +
+                                  "Для продолжения нажмите любую кнопку");
+                Console.ReadKey();
+
+                return;
+            }
 
             _fighterFirst.PrintInfo();
             _fighterSecond.PrintInfo();
@@ -145,10 +152,10 @@ namespace Functions.OOP.GladiatorFights
             {
                 Console.WriteLine("\n-====Новый ход!====-\n");
 
-                fighter1.CauseClassDamage(fighter2);
+                fighter1.Attack(fighter2);
                 if (fighter2.Health > 0)
                 {
-                    fighter2.CauseClassDamage(fighter1);
+                    fighter2.Attack(fighter1);
                 }
 
                 Console.WriteLine("---Итоги---");
@@ -196,11 +203,11 @@ namespace Functions.OOP.GladiatorFights
         private int _baseHealthValue = 45;
         private int _basePowerValue = 15;
         private int _baseArmorValue = 30;
-        protected float _healthMax;
-        protected float _power;
-        protected float _armor;
-        protected float _armorDivider = 4;
-        protected float _damage;
+        protected float HealthMax;
+        protected float Power;
+        protected float Armor;
+        protected float ArmorDivider = 4;
+        protected float Damage;
 
         public string ClassName { get; protected set; }
         public float Health { get; protected set; }
@@ -208,9 +215,9 @@ namespace Functions.OOP.GladiatorFights
         protected Fighter()
         {
             Health = _baseHealthValue;
-            _healthMax = Health;
-            _power = _basePowerValue;
-            _armor = _baseArmorValue;
+            HealthMax = Health;
+            Power = _basePowerValue;
+            Armor = _baseArmorValue;
         }
 
         public abstract void PrintInfo();
@@ -220,26 +227,28 @@ namespace Functions.OOP.GladiatorFights
             Console.WriteLine($"{ClassName}: Уровень жизни {Health} ");
         }
 
-        protected void CauseBaseDamage(Fighter enemy, float damage = 0)
+        public abstract void Attack(Fighter enemy);
+
+        public abstract void TakeDamageClass(float damage);
+
+        protected void AttackBase(Fighter enemy, float damage = 0)
         {
             if (damage == 0)
             {
-                damage = _power;
+                damage = Power;
             }
 
             Console.WriteLine($"{ClassName}: Пытается нанести {damage} урона");
 
-            enemy.TakeClassDamage(damage);
+            enemy.TakeDamageClass(damage);
         }
 
-        public abstract void CauseClassDamage(Fighter enemy);
-
-        public void TakeBaseDamage(float damage)
+        protected void TakeDamageBase(float damage)
         {
-            if (damage > _armor / _armorDivider)
+            if (damage > Armor / ArmorDivider)
             {
-                Health -= (damage - _armor / _armorDivider);
-                Console.WriteLine($"{ClassName}: Получено {damage - _armor / _armorDivider} урона");
+                Health -= (damage - Armor / ArmorDivider);
+                Console.WriteLine($"{ClassName}: Получено {damage - Armor / ArmorDivider} урона");
             }
             else
             {
@@ -251,8 +260,6 @@ namespace Functions.OOP.GladiatorFights
                 Health = 0;
             }
         }
-
-        public abstract void TakeClassDamage(float damage);
     }
 
     abstract class Warrior : Fighter
@@ -281,8 +288,8 @@ namespace Functions.OOP.GladiatorFights
         {
             Console.WriteLine($"Класс: {ClassName}\n" +
                               $"Жизнь: {Health}\n" +
-                              $"Сила: {_power}\n" +
-                              $"Защита: {_armor}");
+                              $"Сила: {Power}\n" +
+                              $"Защита: {Armor}");
             Console.WriteLine($"{_criticalDescription}: {_criticalChance}");
             Console.WriteLine("=========");
         }
@@ -298,30 +305,30 @@ namespace Functions.OOP.GladiatorFights
             _powerBonus = _bonusParameter * _bonusMultiplier * 2;
             _healthBonus = _bonusParameter * _bonusMultiplier;
 
-            _power += _powerBonus;
+            Power += _powerBonus;
             Health += _healthBonus;
         }
 
-        public override void CauseClassDamage(Fighter enemy)
+        public override void Attack(Fighter enemy)
         {
             float damage;
 
             if (_random.Next(_criticalChanceMax) < _criticalChance)
             {
-                damage = _power * _criticalMultiplier;
+                damage = Power * _criticalMultiplier;
                 Console.WriteLine($"{ClassName}: Критическая атака");
             }
             else
             {
-                damage = _power;
+                damage = Power;
             }
 
-            CauseBaseDamage(enemy, damage);
+            AttackBase(enemy, damage);
         }
 
-        public override void TakeClassDamage(float damage)
+        public override void TakeDamageClass(float damage)
         {
-            TakeBaseDamage(damage);
+            TakeDamageBase(damage);
         }
     }
 
@@ -335,25 +342,25 @@ namespace Functions.OOP.GladiatorFights
             _armorBonus = _bonusParameter * _bonusMultiplier * 2;
             _healthBonus = _bonusParameter * _bonusMultiplier;
 
-            _armor += _armorBonus;
+            Armor += _armorBonus;
             Health += _healthBonus;
         }
 
-        public override void CauseClassDamage(Fighter enemy)
+        public override void Attack(Fighter enemy)
         {
-            CauseBaseDamage(enemy, _power);
+            AttackBase(enemy, Power);
         }
 
-        public override void TakeClassDamage(float damage)
+        public override void TakeDamageClass(float damage)
         {
             if (_random.Next(_criticalChanceMax) < _criticalChance)
             {
                 damage = 0;
                 Console.WriteLine($"{ClassName}: Блок атаки");
             }
-            else if (damage > _armor / _armorDivider)
+            else if (damage > Armor / ArmorDivider)
             {
-                TakeBaseDamage(damage);
+                TakeDamageBase(damage);
             }
         }
     }
@@ -370,25 +377,25 @@ namespace Functions.OOP.GladiatorFights
             _armorBonus = _bonusParameter * _bonusMultiplier;
 
             Health += _healthBonus;
-            _power += _powerBonus;
-            _armor += _armorBonus;
+            Power += _powerBonus;
+            Armor += _armorBonus;
         }
 
-        public override void CauseClassDamage(Fighter enemy)
+        public override void Attack(Fighter enemy)
         {
-            CauseBaseDamage(enemy, _power);
+            AttackBase(enemy, Power);
         }
 
-        public override void TakeClassDamage(float damage)
+        public override void TakeDamageClass(float damage)
         {
             if (_random.Next(_baseBonusValue) < _criticalChance)
             {
                 damage = 0;
                 Console.WriteLine($"{ClassName}: Уворот от атаки");
             }
-            else if (damage > _armor / _armorDivider)
+            else if (damage > Armor / ArmorDivider)
             {
-                TakeBaseDamage(damage);
+                TakeDamageBase(damage);
             }
         }
     }
@@ -410,8 +417,8 @@ namespace Functions.OOP.GladiatorFights
         {
             Console.WriteLine($"Класс: {ClassName}\n" +
                               $"Жизнь: {Health}\n" +
-                              $"Сила: {_power}\n" +
-                              $"Защита: {_armor}");
+                              $"Сила: {Power}\n" +
+                              $"Защита: {Armor}");
             Console.WriteLine($"Уровень маны: {_mana}");
             Console.WriteLine($"Сила заклинаний: {_powerMagical}");
             Console.WriteLine("=========");
@@ -426,16 +433,16 @@ namespace Functions.OOP.GladiatorFights
             _spellDescription = "Лечение себя";
         }
 
-        public override void CauseClassDamage(Fighter enemy)
+        public override void Attack(Fighter enemy)
         {
-            CauseBaseDamage(enemy, _power);
+            AttackBase(enemy, Power);
         }
 
-        public override void TakeClassDamage(float damage)
+        public override void TakeDamageClass(float damage)
         {
-            TakeBaseDamage(damage);
+            TakeDamageBase(damage);
 
-            if (_healthMax - Health >= _powerMagical)
+            if (HealthMax - Health >= _powerMagical)
             {
                 if (Health > 0 && _mana >= _spellManaPrice)
                 {
@@ -444,9 +451,9 @@ namespace Functions.OOP.GladiatorFights
 
                     Console.WriteLine($"{ClassName}: Вылечено {_powerMagical} жизни");
 
-                    if (Health > _healthMax)
+                    if (Health > HealthMax)
                     {
-                        Health = _healthMax;
+                        Health = HealthMax;
                     }
                 }
             }
@@ -461,26 +468,26 @@ namespace Functions.OOP.GladiatorFights
             _spellDescription = "Урон магией";
         }
 
-        public override void CauseClassDamage(Fighter enemy)
+        public override void Attack(Fighter enemy)
         {
             float commonDamage;
 
             if (_mana >= _spellManaPrice)
             {
                 _mana -= _spellManaPrice;
-                commonDamage = _power + _powerMagical;
+                commonDamage = Power + _powerMagical;
             }
             else
             {
-                commonDamage = _power;
+                commonDamage = Power;
             }
 
-            CauseBaseDamage(enemy, commonDamage);
+            AttackBase(enemy, commonDamage);
         }
 
-        public override void TakeClassDamage(float damage)
+        public override void TakeDamageClass(float damage)
         {
-            TakeBaseDamage(damage);
+            TakeDamageBase(damage);
         }
     }
 
