@@ -14,8 +14,23 @@ namespace Functions.OOP.GladiatorFights
 
     class Arena
     {
+        private bool _isUserExited = false;
         private Fighter _fighterFirst;
         private Fighter _fighterSecond;
+        private Dictionary<int, Fighter> _fightersDictionary;
+
+        public Arena()
+        {
+            _fightersDictionary = new Dictionary<int, Fighter>
+            {
+                { 1, new Knight() },
+                { 2, new Guardian() },
+                { 3, new Assassin() },
+                { 4, new Healer() },
+                { 5, new Warlock() }
+            };
+        }
+
 
         public void Run()
         {
@@ -72,15 +87,25 @@ namespace Functions.OOP.GladiatorFights
             Fighter fighter;
 
             Console.Clear();
-            Console.WriteLine("Введите номер типа бойца:\n" +
-                             $"{(int)FighterClasses.Knight} - рыцарь\n" +
-                             $"{(int)FighterClasses.Guardian} - защитник\n" +
-                             $"{(int)FighterClasses.Assassin} - ассасин\n" +
-                             $"{(int)FighterClasses.Healer} - лекарь\n" +
-                             $"{(int)FighterClasses.Warlock} - боевой маг\n");
+            Console.WriteLine("Введите номер типа бойца:");
+
+            foreach(KeyValuePair<int, Fighter> pair in _fightersDictionary)
+            {
+                Console.WriteLine($"Номер {pair.Key} - {pair.Value.ClassName}");
+            }
+
 
             int userInput = ReadInt();
 
+            if(_fightersDictionary.ContainsKey(userInput))
+            {
+                fighter = _fightersDictionary[userInput]; 
+            }
+            else
+            {
+                Console.WriteLine("Введено некорректное значение, будет рыцарь)");
+                fighter = new Knight();
+            }
             switch (userInput)
             {
                 case (int)FighterClasses.Knight:
