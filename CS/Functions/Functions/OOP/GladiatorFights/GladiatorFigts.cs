@@ -20,8 +20,21 @@ namespace Functions.OOP.GladiatorFights
     class Arena
     {
         private bool _isUserExited = false;
-        private Fighter fighterFirst;
-        private Fighter fighterSecond;
+        private Fighter _fighterFirst;
+        private Fighter _fighterSecond;
+        private Dictionary<int, Fighter> _fightersDictionary;
+
+        public Arena()
+        {
+            _fightersDictionary = new Dictionary<int, Fighter>
+            {
+                { 1, new Knight() },
+                { 2, new Guardian() },
+                { 3, new Assassin() },
+                { 4, new Healer() },
+                { 5, new Warlock() }
+            };
+        }
 
         public void Run()
         {
@@ -34,13 +47,13 @@ namespace Functions.OOP.GladiatorFights
                 switch (userInput)
                 {
                     case (int)UserCommands.SelectFirstFighter:
-                        fighterFirst = SelectFighter();
+                        _fighterFirst = SelectFighter();
                         break;
                     case (int)UserCommands.SelectSecondFighter:
-                        fighterSecond = SelectFighter();
+                        _fighterSecond = SelectFighter();
                         break;
                     case (int)UserCommands.StartBattle:
-                        StartBattle(fighterFirst, fighterSecond);
+                        StartBattle(_fighterFirst, _fighterSecond);
                         break;
                     case (int)UserCommands.Exit:
                         _isUserExited = true;
@@ -60,14 +73,14 @@ namespace Functions.OOP.GladiatorFights
                              $"{(int)UserCommands.SelectSecondFighter} - выбрать второго бойца\n" +
                              $"{(int)UserCommands.StartBattle} - начать бой\n" +
                              $"{(int)UserCommands.Exit} - выйти из программы\n");
-            if(fighterFirst != null )
+            if (_fighterFirst != null)
             {
-                Console.WriteLine($"Первый боец - {fighterFirst.ClassName}");
+                Console.WriteLine($"Первый боец - {_fighterFirst.ClassName}");
             }
-            
-            if(fighterSecond != null )
+
+            if (_fighterSecond != null)
             {
-                Console.WriteLine($"Второй боец - {fighterSecond.ClassName}");
+                Console.WriteLine($"Второй боец - {_fighterSecond.ClassName}");
             }
         }
 
@@ -76,29 +89,39 @@ namespace Functions.OOP.GladiatorFights
             Fighter fighter;
 
             Console.Clear();
-            Console.WriteLine("Введите номер типа бойца:\n" +
-                             $"{(int)FighterClasses.Knight} - рыцарь\n" +
-                             $"{(int)FighterClasses.Guardian} - защитник\n" +
-                             $"{(int)FighterClasses.Assassin} - ассасин\n" +
-                             $"{(int)FighterClasses.Healer} - лекарь\n" +
-                             $"{(int)FighterClasses.Warlock} - боевой маг\n");
+            Console.WriteLine("Введите номер типа бойца:");
+
+            foreach(KeyValuePair<int, Fighter> pair in _fightersDictionary)
+            {
+                Console.WriteLine($"Номер {pair.Key} - {pair.Value.ClassName}");
+            }
+
 
             int userInput = ReadInt();
 
+            if(_fightersDictionary.ContainsKey(userInput))
+            {
+                fighter = _fightersDictionary[userInput]; 
+            }
+            else
+            {
+                Console.WriteLine("Введено некорректное значение, будет рыцарь)");
+                fighter = new Knight();
+            }
             switch (userInput)
             {
                 case (int)FighterClasses.Knight:
                     fighter = new Knight();
-                    break;                
+                    break;
                 case (int)FighterClasses.Guardian:
                     fighter = new Guardian();
-                    break;                
+                    break;
                 case (int)FighterClasses.Assassin:
                     fighter = new Assassin();
-                    break;               
+                    break;
                 case (int)FighterClasses.Healer:
                     fighter = new Healer();
-                    break;                
+                    break;
                 case (int)FighterClasses.Warlock:
                     fighter = new Warlock();
                     break;
@@ -113,10 +136,10 @@ namespace Functions.OOP.GladiatorFights
 
         private void StartBattle(Fighter fighter1, Fighter fighter2)
         {
-            Console.Clear ();
+            Console.Clear();
 
-            fighterFirst.PrintInfo();
-            fighterSecond.PrintInfo();
+            _fighterFirst.PrintInfo();
+            _fighterSecond.PrintInfo();
 
             while (fighter1.Health > 0 && fighter2.Health > 0)
             {
