@@ -1,37 +1,32 @@
 ﻿using System;
-using System.Threading;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Functions.OOP.GladiatorFights
 {
-    internal class GladiatorFigts
+    internal static class GladiatorFights
     {
-        static void Main()
+        private static void Main()
         {
             Arena arena = new Arena();
             arena.Run();
         }
     }
 
-    class Arena
+    internal class Arena
     {
+        private readonly Dictionary<int, Fighter> _fightersDictionary = new Dictionary<int, Fighter>
+        {
+            { 1, new Knight() },
+            { 2, new Guardian() },
+            { 3, new Assassin() },
+            { 4, new Healer() },
+            { 5, new Warlock() }
+        };
+
         private Fighter _fighterFirst;
         private Fighter _fighterSecond;
-        private readonly Dictionary<int, Fighter> _fightersDictionary;
-
-        public Arena()
-        {
-            _fightersDictionary = new Dictionary<int, Fighter>
-            {
-                { 1, new Knight() },
-                { 2, new Guardian() },
-                { 3, new Assassin() },
-                { 4, new Healer() },
-                { 5, new Warlock() }
-            };
-        }
-
-
+        
         public void Run()
         {
             bool isUserExited = false;
@@ -67,19 +62,13 @@ namespace Functions.OOP.GladiatorFights
         {
             Console.Clear();
             Console.WriteLine("Введите команду:\n" +
-                             $"{(int)UserCommands.SelectFirstFighter} - выбрать первого бойца\n" +
-                             $"{(int)UserCommands.SelectSecondFighter} - выбрать второго бойца\n" +
-                             $"{(int)UserCommands.StartBattle} - начать бой\n" +
-                             $"{(int)UserCommands.Exit} - выйти из программы\n");
-            if (_fighterFirst != null)
-            {
-                Console.WriteLine($"Первый боец - {_fighterFirst.Name}");
-            }
+                              $"{(int)UserCommands.SelectFirstFighter} - выбрать первого бойца\n" +
+                              $"{(int)UserCommands.SelectSecondFighter} - выбрать второго бойца\n" +
+                              $"{(int)UserCommands.StartBattle} - начать бой\n" +
+                              $"{(int)UserCommands.Exit} - выйти из программы\n");
+            if (_fighterFirst != null) Console.WriteLine($"Первый боец - {_fighterFirst.Name}");
 
-            if (_fighterSecond != null)
-            {
-                Console.WriteLine($"Второй боец - {_fighterSecond.Name}");
-            }
+            if (_fighterSecond != null) Console.WriteLine($"Второй боец - {_fighterSecond.Name}");
         }
 
         private Fighter CreateFighter()
@@ -90,16 +79,13 @@ namespace Functions.OOP.GladiatorFights
             Console.WriteLine("Введите номер типа бойца:");
 
             foreach (KeyValuePair<int, Fighter> pair in _fightersDictionary)
-            {
                 Console.WriteLine($"Номер {pair.Key} - {pair.Value.Name}");
-            }
-
 
             int userInput = ReadInt();
 
-            if (_fightersDictionary.ContainsKey(userInput))
+            if (_fightersDictionary.TryGetValue(userInput, out Fighter value))
             {
-                fighter = _fightersDictionary[userInput].Clone();
+                fighter = value.Clone();
             }
             else
             {
@@ -131,10 +117,7 @@ namespace Functions.OOP.GladiatorFights
                 Console.WriteLine("\n-====Новый ход!====-\n");
 
                 fighter1.Attack(fighter2);
-                if (fighter2.Health > 0)
-                {
-                    fighter2.Attack(fighter1);
-                }
+                if (fighter2.Health > 0) fighter2.Attack(fighter1);
 
                 Console.WriteLine("---Итоги---");
 
@@ -155,37 +138,30 @@ namespace Functions.OOP.GladiatorFights
 
             while (isIntEntered == false)
             {
-                string enteredString;
-
                 Console.WriteLine("Введите число:");
-                enteredString = Console.ReadLine();
+                string enteredString = Console.ReadLine();
 
                 isIntEntered = int.TryParse(enteredString, out parsedInt);
 
                 if (isIntEntered)
-                {
                     Console.WriteLine($"Введенное число распознано: {parsedInt}");
-                }
                 else
-                {
                     Console.WriteLine("Вы ввели некорректное число. Попробуйте ещё.\n");
-                }
             }
 
             return parsedInt;
         }
     }
 
-    abstract class Fighter
+    internal abstract class Fighter
     {
+        private readonly int _baseArmorValue = 30;
         private readonly int _baseHealthValue = 45;
         private readonly int _basePowerValue = 15;
-        private readonly int _baseArmorValue = 30;
-        protected float HealthMax;
-        protected float Power;
+        protected readonly float ArmorDivider = 4;
+        protected readonly float HealthMax;
         protected float Armor;
-        protected float ArmorDivider = 4;
-        protected float Damage;
+        protected float Power;
 
         protected Fighter()
         {
@@ -209,14 +185,11 @@ namespace Functions.OOP.GladiatorFights
 
         public abstract void Attack(Fighter enemy);
 
-        public abstract void TakeDamage(float damage);
+        protected abstract void TakeDamage(float damage);
 
         protected void AttackBase(Fighter enemy, float damage = 0)
         {
-            if (damage == 0)
-            {
-                damage = Power;
-            }
+            if (damage == 0) damage = Power;
 
             Console.WriteLine($"{Name}: Пытается нанести {damage} урона");
 
@@ -227,7 +200,7 @@ namespace Functions.OOP.GladiatorFights
         {
             if (damage > Armor / ArmorDivider)
             {
-                Health -= (damage - Armor / ArmorDivider);
+                Health -= damage - Armor / ArmorDivider;
                 Console.WriteLine($"{Name}: Получено {damage - Armor / ArmorDivider} урона");
             }
             else
@@ -235,30 +208,27 @@ namespace Functions.OOP.GladiatorFights
                 Console.WriteLine($"{Name}: Урон не прошёл");
             }
 
-            if (Health < 0)
-            {
-                Health = 0;
-            }
+            if (Health < 0) Health = 0;
         }
     }
 
-    abstract class Warrior : Fighter
+    internal abstract class Warrior : Fighter
     {
-        protected Random Random = new Random();
-        protected int BaseBonusValue = 50;
-        protected float BonusParameter;
-        protected float BonusMultiplier = 0.33f;
-
-        protected float HealthBonus;
-        protected float PowerBonus;
+        protected readonly int BaseBonusValue = 50;
+        protected readonly float BonusMultiplier = 0.33f;
+        protected readonly float BonusParameter;
+        protected readonly float CriticalChance;
+        protected readonly int CriticalChanceMax = 100;
+        protected readonly float CriticalMultiplier = 2;
+        protected readonly Random Random = new Random();
         protected float ArmorBonus;
 
         protected string CriticalDescription;
-        protected float CriticalChance;
-        protected int CriticalChanceMax = 100;
-        protected float CriticalMultiplier = 2;
 
-        protected Warrior() : base()
+        protected float HealthBonus;
+        protected float PowerBonus;
+
+        protected Warrior()
         {
             BonusParameter = Random.Next(BaseBonusValue);
             CriticalChance = BaseBonusValue - BonusParameter;
@@ -275,9 +245,9 @@ namespace Functions.OOP.GladiatorFights
         }
     }
 
-    class Knight : Warrior
+    internal class Knight : Warrior
     {
-        public Knight() : base()
+        public Knight()
         {
             Name = "Рыцарь";
             CriticalDescription = "Шанс крита";
@@ -311,15 +281,15 @@ namespace Functions.OOP.GladiatorFights
             AttackBase(enemy, damage);
         }
 
-        public override void TakeDamage(float damage)
+        protected override void TakeDamage(float damage)
         {
             TakeDamageBase(damage);
         }
     }
 
-    class Guardian : Warrior
+    internal class Guardian : Warrior
     {
-        public Guardian() : base()
+        public Guardian()
         {
             Name = "Защитник";
             CriticalDescription = "Шанс блока";
@@ -341,22 +311,17 @@ namespace Functions.OOP.GladiatorFights
             AttackBase(enemy, Power);
         }
 
-        public override void TakeDamage(float damage)
+        protected override void TakeDamage(float damage)
         {
             if (Random.Next(CriticalChanceMax) < CriticalChance)
-            {
                 Console.WriteLine($"{Name}: Блок атаки");
-            }
-            else if (damage > Armor / ArmorDivider)
-            {
-                TakeDamageBase(damage);
-            }
+            else if (damage > Armor / ArmorDivider) TakeDamageBase(damage);
         }
     }
 
-    class Assassin : Warrior
+    internal class Assassin : Warrior
     {
-        public Assassin() : base()
+        public Assassin()
         {
             Name = "Ассасин";
             CriticalDescription = "Шанс уворота";
@@ -380,31 +345,21 @@ namespace Functions.OOP.GladiatorFights
             AttackBase(enemy, Power);
         }
 
-        public override void TakeDamage(float damage)
+        protected override void TakeDamage(float damage)
         {
             if (Random.Next(BaseBonusValue) < CriticalChance)
-            {
                 Console.WriteLine($"{Name}: Уворот от атаки");
-            }
-            else if (damage > Armor / ArmorDivider)
-            {
-                TakeDamageBase(damage);
-            }
+            else if (damage > Armor / ArmorDivider) TakeDamageBase(damage);
         }
     }
 
-    abstract class Wizzard : Fighter
+    internal abstract class Wizard : Fighter
     {
-        protected float ManaBaseValue = 40;
-        protected float Mana;
-        protected float PowerMagical = 15;
-        protected float SpellManaPrice = 10;
+        private const float ManaBaseValue = 40;
+        protected readonly float PowerMagical = 15;
+        protected readonly float SpellManaPrice = 10;
+        protected float Mana = ManaBaseValue;
         protected string SpellDescription;
-
-        protected Wizzard() : base()
-        {
-            Mana = ManaBaseValue;
-        }
 
         public override void PrintInfo()
         {
@@ -418,9 +373,9 @@ namespace Functions.OOP.GladiatorFights
         }
     }
 
-    class Healer : Wizzard
+    internal class Healer : Wizard
     {
-        public Healer() : base()
+        public Healer()
         {
             Name = "Лекарь";
             SpellDescription = "Лечение себя";
@@ -436,12 +391,11 @@ namespace Functions.OOP.GladiatorFights
             AttackBase(enemy, Power);
         }
 
-        public override void TakeDamage(float damage)
+        protected override void TakeDamage(float damage)
         {
             TakeDamageBase(damage);
 
             if (HealthMax - Health >= PowerMagical)
-            {
                 if (Health > 0 && Mana >= SpellManaPrice)
                 {
                     Mana -= SpellManaPrice;
@@ -449,18 +403,14 @@ namespace Functions.OOP.GladiatorFights
 
                     Console.WriteLine($"{Name}: Вылечено {PowerMagical} жизни");
 
-                    if (Health > HealthMax)
-                    {
-                        Health = HealthMax;
-                    }
+                    if (Health > HealthMax) Health = HealthMax;
                 }
-            }
         }
     }
 
-    class Warlock : Wizzard
+    internal class Warlock : Wizard
     {
-        public Warlock() : base()
+        public Warlock()
         {
             Name = "Боевой маг";
             SpellDescription = "Урон магией";
@@ -488,19 +438,10 @@ namespace Functions.OOP.GladiatorFights
             AttackBase(enemy, commonDamage);
         }
 
-        public override void TakeDamage(float damage)
+        protected override void TakeDamage(float damage)
         {
             TakeDamageBase(damage);
         }
-    }
-
-    public enum FighterClasses
-    {
-        Knight = 1,
-        Guardian = 2,
-        Assassin = 3,
-        Healer = 4,
-        Warlock = 5
     }
 
     public enum UserCommands

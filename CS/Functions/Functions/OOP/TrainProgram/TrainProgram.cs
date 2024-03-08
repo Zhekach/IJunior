@@ -160,7 +160,7 @@ namespace Functions.OOP.TrainProgram
                 Console.WriteLine($"Осталось распределить {unallocatedPassengers} пассажиров.");
                 Console.WriteLine("Введите тип вагона:");
 
-                foreach(var type in _carTypes)
+                foreach(KeyValuePair<string, int> type in _carTypes)
                 {
                     Console.WriteLine($"Вагон {type.Key}, вместительность - {type.Value} мест.");
                 }
