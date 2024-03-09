@@ -26,7 +26,7 @@ namespace Functions.OOP.GladiatorFights
 
         private Fighter _fighterFirst;
         private Fighter _fighterSecond;
-        
+
         public void Run()
         {
             bool isUserExited = false;
@@ -79,7 +79,9 @@ namespace Functions.OOP.GladiatorFights
             Console.WriteLine("Введите номер типа бойца:");
 
             foreach (KeyValuePair<int, Fighter> pair in _fightersDictionary)
+            {
                 Console.WriteLine($"Номер {pair.Key} - {pair.Value.Name}");
+            }
 
             int userInput = ReadInt();
 
@@ -155,13 +157,13 @@ namespace Functions.OOP.GladiatorFights
 
     internal abstract class Fighter
     {
-        private readonly int _baseArmorValue = 30;
-        private readonly int _baseHealthValue = 45;
-        private readonly int _basePowerValue = 15;
         protected readonly float ArmorDivider = 4;
         protected readonly float HealthMax;
         protected float Armor;
         protected float Power;
+        private readonly int _baseArmorValue = 30;
+        private readonly int _baseHealthValue = 45;
+        private readonly int _basePowerValue = 15;
 
         protected Fighter()
         {
@@ -355,11 +357,16 @@ namespace Functions.OOP.GladiatorFights
 
     internal abstract class Wizard : Fighter
     {
-        private const float ManaBaseValue = 40;
+        protected readonly float ManaBaseValue = 40;
         protected readonly float PowerMagical = 15;
         protected readonly float SpellManaPrice = 10;
-        protected float Mana = ManaBaseValue;
+        protected float Mana;
         protected string SpellDescription;
+
+        protected Wizard()
+        {
+            Mana = ManaBaseValue;
+        }
 
         public override void PrintInfo()
         {
