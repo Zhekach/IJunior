@@ -71,6 +71,7 @@
     <Compile Include="OOP\Library\Library.cs" />
     <Compile Include="OOP\PlayersDataBase\PlayersDataBase.cs" />
     <Compile Include="OOP\ShopProgram\ShopProgram.cs" />
+    <Compile Include="OOP\Supermarket\SupermarketProgramm.cs" />
     <Compile Include="OOP\TrainProgram\TrainProgram.cs" />
     <Compile Include="OOP\WorkWithClasses.cs" />
     <Compile Include="OOP\WorkWithProperties.cs" />

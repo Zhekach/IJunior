@@ -66,9 +66,15 @@ namespace Functions.OOP.GladiatorFights
                               $"{(int)UserCommands.SelectSecondFighter} - выбрать второго бойца\n" +
                               $"{(int)UserCommands.StartBattle} - начать бой\n" +
                               $"{(int)UserCommands.Exit} - выйти из программы\n");
-            if (_fighterFirst != null) Console.WriteLine($"Первый боец - {_fighterFirst.Name}");
+            if (_fighterFirst != null)
+            {
+                Console.WriteLine($"Первый боец - {_fighterFirst.Name}");
+            }
 
-            if (_fighterSecond != null) Console.WriteLine($"Второй боец - {_fighterSecond.Name}");
+            if (_fighterSecond != null)
+            {
+                Console.WriteLine($"Второй боец - {_fighterSecond.Name}");
+            }
         }
 
         private Fighter CreateFighter()
@@ -119,7 +125,11 @@ namespace Functions.OOP.GladiatorFights
                 Console.WriteLine("\n-====Новый ход!====-\n");
 
                 fighter1.Attack(fighter2);
-                if (fighter2.Health > 0) fighter2.Attack(fighter1);
+
+                if (fighter2.Health > 0)
+                {
+                    fighter2.Attack(fighter1);
+                }
 
                 Console.WriteLine("---Итоги---");
 
@@ -146,9 +156,13 @@ namespace Functions.OOP.GladiatorFights
                 isIntEntered = int.TryParse(enteredString, out parsedInt);
 
                 if (isIntEntered)
+                {
                     Console.WriteLine($"Введенное число распознано: {parsedInt}");
+                }
                 else
+                {
                     Console.WriteLine("Вы ввели некорректное число. Попробуйте ещё.\n");
+                }
             }
 
             return parsedInt;
@@ -191,7 +205,10 @@ namespace Functions.OOP.GladiatorFights
 
         protected void AttackBase(Fighter enemy, float damage = 0)
         {
-            if (damage == 0) damage = Power;
+            if (damage == 0)
+            {
+                damage = Power;
+            }
 
             Console.WriteLine($"{Name}: Пытается нанести {damage} урона");
 
@@ -210,7 +227,10 @@ namespace Functions.OOP.GladiatorFights
                 Console.WriteLine($"{Name}: Урон не прошёл");
             }
 
-            if (Health < 0) Health = 0;
+            if (Health < 0)
+            {
+                Health = 0;
+            }
         }
     }
 
@@ -316,8 +336,13 @@ namespace Functions.OOP.GladiatorFights
         protected override void TakeDamage(float damage)
         {
             if (Random.Next(CriticalChanceMax) < CriticalChance)
+            {
                 Console.WriteLine($"{Name}: Блок атаки");
-            else if (damage > Armor / ArmorDivider) TakeDamageBase(damage);
+            }
+            else if (damage > Armor / ArmorDivider)
+            {
+                TakeDamageBase(damage);
+            }
         }
     }
 
@@ -350,8 +375,13 @@ namespace Functions.OOP.GladiatorFights
         protected override void TakeDamage(float damage)
         {
             if (Random.Next(BaseBonusValue) < CriticalChance)
+            {
                 Console.WriteLine($"{Name}: Уворот от атаки");
-            else if (damage > Armor / ArmorDivider) TakeDamageBase(damage);
+            }
+            else if (damage > Armor / ArmorDivider)
+            {
+                TakeDamageBase(damage);
+            }
         }
     }
 
@@ -403,6 +433,7 @@ namespace Functions.OOP.GladiatorFights
             TakeDamageBase(damage);
 
             if (HealthMax - Health >= PowerMagical)
+            {
                 if (Health > 0 && Mana >= SpellManaPrice)
                 {
                     Mana -= SpellManaPrice;
@@ -410,8 +441,12 @@ namespace Functions.OOP.GladiatorFights
 
                     Console.WriteLine($"{Name}: Вылечено {PowerMagical} жизни");
 
-                    if (Health > HealthMax) Health = HealthMax;
+                    if (Health > HealthMax)
+                    {
+                        Health = HealthMax;
+                    }
                 }
+            }
         }
     }
 
