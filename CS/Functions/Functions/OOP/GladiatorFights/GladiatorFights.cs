@@ -15,17 +15,22 @@ namespace Functions.OOP.GladiatorFights
 
     internal class Arena
     {
-        private readonly Dictionary<int, Fighter> _fightersDictionary = new Dictionary<int, Fighter>
-        {
-            { 1, new Knight() },
-            { 2, new Guardian() },
-            { 3, new Assassin() },
-            { 4, new Healer() },
-            { 5, new Warlock() }
-        };
+        private readonly List<Fighter> _fightersList;
 
         private Fighter _fighterFirst;
         private Fighter _fighterSecond;
+
+        public Arena()
+        {
+            _fightersList = new List<Fighter>
+            {
+                { new Knight() },
+                { new Guardian() },
+                { new Assassin() },
+                { new Healer() },
+                { new Warlock() }
+            };
+        }
 
         public void Run()
         {
@@ -79,29 +84,34 @@ namespace Functions.OOP.GladiatorFights
 
         private Fighter CreateFighter()
         {
-            Fighter fighter;
+            Fighter newFighter;
 
             Console.Clear();
             Console.WriteLine("Введите номер типа бойца:");
 
-            foreach (KeyValuePair<int, Fighter> pair in _fightersDictionary)
+            foreach (Fighter fighter in _fightersList)
             {
-                Console.WriteLine($"Номер {pair.Key} - {pair.Value.Name}");
+                int index = _fightersList.IndexOf(fighter) + 1;
+                Console.WriteLine($"Номер {index} - {fighter.Name}");
             }
 
             int userInput = ReadInt();
 
-            if (_fightersDictionary.TryGetValue(userInput, out Fighter value))
+            if (userInput <= _fightersList.Count && userInput > 0)
             {
-                fighter = value.Clone();
+                newFighter = _fightersList[userInput - 1].Clone();
             }
             else
             {
                 Console.WriteLine("Введено некорректное значение, будет рыцарь)");
-                fighter = new Knight();
+
+                newFighter = new Knight();
+
+                Console.WriteLine("Для продолжения нажмите любую клавишу");
+                Console.ReadKey();
             }
 
-            return fighter;
+            return newFighter;
         }
 
         private void PerformBattle(Fighter fighter1, Fighter fighter2)
@@ -133,8 +143,8 @@ namespace Functions.OOP.GladiatorFights
 
                 Console.WriteLine("---Итоги---");
 
-                fighter1.PrintHpInfo();
-                fighter2.PrintHpInfo();
+                fighter1.PrintHealthInfo();
+                fighter2.PrintHealthInfo();
 
                 Thread.Sleep(5000);
             }
@@ -192,7 +202,7 @@ namespace Functions.OOP.GladiatorFights
 
         public abstract void PrintInfo();
 
-        public void PrintHpInfo()
+        public void PrintHealthInfo()
         {
             Console.WriteLine($"{Name}: Уровень жизни {Health} ");
         }
@@ -219,8 +229,9 @@ namespace Functions.OOP.GladiatorFights
         {
             if (damage > Armor / ArmorDivider)
             {
-                Health -= damage - Armor / ArmorDivider;
-                Console.WriteLine($"{Name}: Получено {damage - Armor / ArmorDivider} урона");
+                float damageRecieved = damage - Armor / ArmorDivider;
+                Health -= damageRecieved;
+                Console.WriteLine($"{Name}: Получено {damageRecieved} урона");
             }
             else
             {
