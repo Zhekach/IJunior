@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Functions.OOP.GladiatorFights
 {
@@ -209,11 +210,7 @@ namespace Functions.OOP.GladiatorFights
 
         public abstract Fighter Clone();
 
-        public abstract void Attack(Fighter enemy);
-
-        protected abstract void TakeDamage(float damage);
-
-        protected void AttackBase(Fighter enemy, float damage = 0)
+        public virtual void Attack(Fighter enemy, float damage = 0)
         {
             if (damage == 0)
             {
@@ -225,7 +222,7 @@ namespace Functions.OOP.GladiatorFights
             enemy.TakeDamage(damage);
         }
 
-        protected void TakeDamageBase(float damage)
+        protected virtual void TakeDamage(float damage)
         {
             if (damage > Armor / ArmorDivider)
             {
@@ -297,7 +294,7 @@ namespace Functions.OOP.GladiatorFights
             return new Knight();
         }
 
-        public override void Attack(Fighter enemy)
+        public void Attack(Fighter enemy)
         {
             float damage;
 
@@ -311,12 +308,7 @@ namespace Functions.OOP.GladiatorFights
                 damage = Power;
             }
 
-            AttackBase(enemy, damage);
-        }
-
-        protected override void TakeDamage(float damage)
-        {
-            TakeDamageBase(damage);
+            base.Attack(enemy, damage);
         }
     }
 
@@ -339,11 +331,6 @@ namespace Functions.OOP.GladiatorFights
             return new Guardian();
         }
 
-        public override void Attack(Fighter enemy)
-        {
-            AttackBase(enemy, Power);
-        }
-
         protected override void TakeDamage(float damage)
         {
             if (Random.Next(CriticalChanceMax) < CriticalChance)
@@ -352,7 +339,7 @@ namespace Functions.OOP.GladiatorFights
             }
             else if (damage > Armor / ArmorDivider)
             {
-                TakeDamageBase(damage);
+                base.TakeDamage(damage);
             }
         }
     }
@@ -378,11 +365,6 @@ namespace Functions.OOP.GladiatorFights
             return new Assassin();
         }
 
-        public override void Attack(Fighter enemy)
-        {
-            AttackBase(enemy, Power);
-        }
-
         protected override void TakeDamage(float damage)
         {
             if (Random.Next(BaseBonusValue) < CriticalChance)
@@ -391,7 +373,7 @@ namespace Functions.OOP.GladiatorFights
             }
             else if (damage > Armor / ArmorDivider)
             {
-                TakeDamageBase(damage);
+                base.TakeDamage(damage);
             }
         }
     }
@@ -434,14 +416,9 @@ namespace Functions.OOP.GladiatorFights
             return new Healer();
         }
 
-        public override void Attack(Fighter enemy)
-        {
-            AttackBase(enemy, Power);
-        }
-
         protected override void TakeDamage(float damage)
         {
-            TakeDamageBase(damage);
+            base.TakeDamage(damage);
 
             if (HealthMax - Health >= PowerMagical)
             {
@@ -474,7 +451,7 @@ namespace Functions.OOP.GladiatorFights
             return new Warlock();
         }
 
-        public override void Attack(Fighter enemy)
+        public void Attack(Fighter enemy)
         {
             float commonDamage;
 
@@ -488,12 +465,7 @@ namespace Functions.OOP.GladiatorFights
                 commonDamage = Power;
             }
 
-            AttackBase(enemy, commonDamage);
-        }
-
-        protected override void TakeDamage(float damage)
-        {
-            TakeDamageBase(damage);
+            base.Attack(enemy, commonDamage);
         }
     }
 
