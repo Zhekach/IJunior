@@ -7,7 +7,7 @@ namespace Functions.OOP.GladiatorFights
 {
     internal static class GladiatorFights
     {
-        private static void Main()
+        private static void Main1()
         {
             Arena arena = new Arena();
             arena.Run();
