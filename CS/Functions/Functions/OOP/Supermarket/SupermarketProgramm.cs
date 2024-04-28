@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 
+//TODO Fix removing components from list
+//Fix not random random in random product adding
+//Products.RemoveAll(Predicate < Product > true);
+
 namespace Functions.OOP.Supermarket
 {
     internal class SupermarketProgramm
@@ -14,8 +18,8 @@ namespace Functions.OOP.Supermarket
             {
                 new Client(supermarket, 5, 100),
                 new Client(supermarket, 3, 200),
-                //new Client(supermarket, 10, 100),
-                //new Client(supermarket, 4, 100)
+                new Client(supermarket, 10, 100),
+                new Client(supermarket, 4, 100)
             };
             
             supermarket.Run(clients);
@@ -57,7 +61,7 @@ namespace Functions.OOP.Supermarket
                 }
             }
 
-            Console.WriteLine($"Итого, супермаркет заработал: {_revenue}");
+            Console.WriteLine($"\nИтого, супермаркет заработал: {_revenue}");
         }
 
         public float GetTotalPrice(Client client)
@@ -170,8 +174,6 @@ namespace Functions.OOP.Supermarket
                 copyOfProducts.Add(product);
             }
 
-            Products.RemoveAll(Predicate<Product>);
-
             return copyOfProducts;
         }
 
@@ -195,6 +197,11 @@ namespace Functions.OOP.Supermarket
     {
         public List<Product> Products;
 
+        public Bag()
+        {
+            Products = new List<Product>();
+        }
+
         public void AddProducts(List<Product> newProducts)
         {
             foreach (Product product in newProducts)
@@ -204,7 +211,7 @@ namespace Functions.OOP.Supermarket
         }
     }
 
-    internal class Product
+    internal struct Product
     {
         public Product(string name, float price)
         {
