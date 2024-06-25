@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-
-//TODO Fix removing components from list
-//Fix not random random in random product adding
-//Products.RemoveAll(Predicate < Product > true);
 
 namespace Functions.OOP.Supermarket
 {
     internal class SupermarketProgramm
     {
-        public static void Main()
+        public static void Main1()
         {
             Supermarket supermarket = new Supermarket();
             
@@ -28,7 +23,15 @@ namespace Functions.OOP.Supermarket
 
     internal class Supermarket
     {
+        public Random Random;
+
         private float _revenue;
+
+        public Supermarket()
+        {
+            Random = new Random();
+        }
+
         public readonly List<Product> Products = new List<Product>()
         {
             new Product("Молоко", 56),
@@ -62,6 +65,8 @@ namespace Functions.OOP.Supermarket
             }
 
             Console.WriteLine($"\nИтого, супермаркет заработал: {_revenue}");
+            Console.WriteLine("Нажмите любую клавишу для выхода.");
+            Console.ReadKey();
         }
 
         public float GetTotalPrice(Client client)
@@ -92,7 +97,7 @@ namespace Functions.OOP.Supermarket
             _money = money;
             _supermarket = supermarket;
             _bag = new Bag();
-            Basket = new Basket();
+            Basket = new Basket(_supermarket.Random);
             IsBasketPaid = false;
         }
 
@@ -138,12 +143,13 @@ namespace Functions.OOP.Supermarket
 
     internal class Basket
     {
-        private Random _random = new Random();
+        private Random _random;
         public List<Product> Products;
 
-        public Basket()
+        public Basket(Random random)
         {
             Products = new List<Product>();
+            _random = random;
         }
 
         public void PrintInfo()
@@ -183,8 +189,6 @@ namespace Functions.OOP.Supermarket
 
             for (int i = 0; i < productsCount; i++)
             {
-                Thread.Sleep(1000);
-
                 int newProductId = _random.Next(supermarket.Products.Count);
                 Products.Add(supermarket.Products[newProductId]);
                 
