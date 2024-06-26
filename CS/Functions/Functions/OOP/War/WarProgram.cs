@@ -6,7 +6,7 @@ namespace Functions.OOP.War
 {
     internal class WarProgram
     {
-        public static void Main()
+        public static void Main1()
         {
             Soldier testSoldier = new Soldier();
             testSoldier.PrintInfo();
