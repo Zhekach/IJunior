@@ -8,8 +8,17 @@ namespace Functions.OOP.War
     {
         public static void Main()
         {
-            SimpleSoldier testSoldier = new SimpleSoldier();
-            testSoldier.PrintInfo();
+            SimpleSoldier testSoldier1 = new SimpleSoldier(1);
+            SimpleSoldier testSoldier2 = new SimpleSoldier(2);
+
+            testSoldier1.PrintInfo();
+            testSoldier2.PrintInfo();
+
+            testSoldier1.Attack(testSoldier2);
+            testSoldier2.Attack(testSoldier1);
+
+            testSoldier1.PrintInfo();
+            testSoldier2.PrintInfo();
         }
     }
 
@@ -17,51 +26,48 @@ namespace Functions.OOP.War
     {
         static readonly Random s_random = new Random();
 
-        private readonly Dictionary<Enum, float> _statsValues = new Dictionary<Enum, float>() 
+        private Dictionary<Enum, float> _statsValues = new Dictionary<Enum, float>()
         {
-            { SoldierSats.Health, 0 },
-            { SoldierSats.Power, 0 },
-            { SoldierSats.Armor, 0 }
+            { SoldierStats.Health, 0 },
+            { SoldierStats.Power, 0 },
+            { SoldierStats.Armor, 0 }
         };
         private readonly Dictionary<Enum, float> _statsIncrements = new Dictionary<Enum, float>()
         {
-            { SoldierSats.Health, 1f },
-            { SoldierSats.Power, 0.75f },
-            { SoldierSats.Armor, 0.5f }
+            { SoldierStats.Health, 1f },
+            { SoldierStats.Power, 0.75f },
+            { SoldierStats.Armor, 0.5f }
         };
         private readonly Dictionary<Enum, string> _statsTranslation = new Dictionary<Enum, string>()
         {
-            { SoldierSats.Health, "Здоровье"},
-            { SoldierSats.Power, "Урон"},
-            { SoldierSats.Armor, "Броня"}
+            { SoldierStats.Health, "Здоровье"},
+            { SoldierStats.Power, "Урон"},
+            { SoldierStats.Armor, "Броня"}
         };
 
         private int StatsPoints = 9;
 
-        protected Soldier() 
+        protected Soldier()
         {
             this.DistributeStats();
-            Health = _statsValues[SoldierSats.Health]; 
-            Power = _statsValues[SoldierSats.Power];
-            Armor = _statsValues[SoldierSats.Armor];
         }
 
-        public float Health {  get; private set; }
-        public float Power {  get; private set; }
-        public float Armor {  get; private set; }
+        public string Type { get; protected set; }
+        public int ID { get; protected set; }
+        public float Health { get => _statsValues[SoldierStats.Health];}
 
         private void DistributeStats()
         {
             while (StatsPoints > 0)
             {
                 List<Enum> stats = new List<Enum>(_statsValues.Keys);
-                
+
                 Enum currentStat = stats[s_random.Next(stats.Count)];
 
                 float currentStatValue = _statsValues[currentStat];
                 float currentStatIncrement = _statsIncrements[currentStat];
 
-                if(_statsValues.TryGetValue(currentStat, out currentStatValue))
+                if (_statsValues.TryGetValue(currentStat, out currentStatValue))
                 {
                     _statsValues.Remove(currentStat);
                     _statsValues.Add(currentStat, currentStatValue += currentStatIncrement);
@@ -70,42 +76,42 @@ namespace Functions.OOP.War
             }
         }
 
-        //public virtual void Attack(Fighter enemy, float damage = 0)
-        //{
-        //    if (damage == 0)
-        //    {
-        //        damage = Power;
-        //    }
+        public virtual void Attack(Soldier enemy, float damage = 0)
+        {
+            if (damage == 0)
+            {
+                damage = _statsValues[SoldierStats.Power];
+            }
 
-        //    Console.WriteLine($"{Name}: Пытается нанести {damage} урона");
+            Console.WriteLine($"{Type}{ID}: Пытается нанести {damage} урона");
 
-        //    enemy.TakeDamage(damage);
-        //}
+            enemy.TakeDamage(damage);
+        }
 
-        //protected virtual void TakeDamage(float damage)
-        //{
-        //    if (damage > Armor / ArmorDivider)
-        //    {
-        //        float damageRecieved = damage - Armor / ArmorDivider;
-        //        Health -= damageRecieved;
-        //        Console.WriteLine($"{Name}: Получено {damageRecieved} урона");
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine($"{Name}: Урон не прошёл");
-        //    }
+        protected virtual void TakeDamage(float damage)
+        {
+            if (damage > _statsValues[SoldierStats.Armor])
+            {
+                float damageRecieved = damage - _statsValues[SoldierStats.Armor];
+                _statsValues[SoldierStats.Health] -= damageRecieved;
+                Console.WriteLine($"{Type}{ID}: Получено {damageRecieved} урона");
+            }
+            else
+            {
+                Console.WriteLine($"{Type}{ID}: Урон не прошёл");
+            }
 
-        //    if (Health < 0)
-        //    {
-        //        Health = 0;
-        //    }
-        //}
+            if (_statsValues[SoldierStats.Health] < 0)
+            {
+                _statsValues[SoldierStats.Health] = 0;
+            }
+        }
 
         public virtual void PrintInfo()
         {
-            // Сначала логично указать тип конкретного воина при переопределении метода
+            Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
 
-            foreach(var stat in _statsValues)
+            foreach (var stat in _statsValues)
             {
                 string statName;
                 string statTranslation;
@@ -121,22 +127,24 @@ namespace Functions.OOP.War
 
                 Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
             }
+
+            Console.WriteLine("");
         }
     }
 
     internal class SimpleSoldier : Soldier
     {
-        public override void PrintInfo()
+        public SimpleSoldier(int id)
         {
-            Console.WriteLine("Это обычный солдат, тут не на что смотреть =(");
-            base.PrintInfo();
+            ID = id;
+            Type = "Простой";
         }
     }
 
-    enum SoldierSats
-        {
-            Health = 0, 
-            Power = 1,
-            Armor = 2
-        }
+    enum SoldierStats
+    {
+        Health = 0,
+        Power = 1,
+        Armor = 2
+    }
 }
