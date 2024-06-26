@@ -6,18 +6,18 @@ namespace Functions.OOP.War
 {
     internal class WarProgram
     {
-        public static void Main1()
+        public static void Main()
         {
-            Soldier testSoldier = new Soldier();
+            SimpleSoldier testSoldier = new SimpleSoldier();
             testSoldier.PrintInfo();
         }
     }
 
-    internal class Soldier
+    internal abstract class Soldier
     {
-        static Random s_random = new Random();
+        static readonly Random s_random = new Random();
 
-        private readonly Dictionary<Enum, float> _stats = new Dictionary<Enum, float>() 
+        private readonly Dictionary<Enum, float> _statsValues = new Dictionary<Enum, float>() 
         {
             { SoldierSats.Health, 0 },
             { SoldierSats.Power, 0 },
@@ -29,15 +29,21 @@ namespace Functions.OOP.War
             { SoldierSats.Power, 0.75f },
             { SoldierSats.Armor, 0.5f }
         };
+        private readonly Dictionary<Enum, string> _statsTranslation = new Dictionary<Enum, string>()
+        {
+            { SoldierSats.Health, "Здоровье"},
+            { SoldierSats.Power, "Урон"},
+            { SoldierSats.Armor, "Броня"}
+        };
+
         private int StatsPoints = 9;
 
-        //protected Soldier() 
-        public Soldier() 
+        protected Soldier() 
         {
             this.DistributeStats();
-            Health = _stats[SoldierSats.Health]; 
-            Power = _stats[SoldierSats.Power];
-            Armor = _stats[SoldierSats.Armor];
+            Health = _statsValues[SoldierSats.Health]; 
+            Power = _statsValues[SoldierSats.Power];
+            Armor = _statsValues[SoldierSats.Armor];
         }
 
         public float Health {  get; private set; }
@@ -48,30 +54,82 @@ namespace Functions.OOP.War
         {
             while (StatsPoints > 0)
             {
-                List<Enum> stats = new List<Enum>(_stats.Keys);
+                List<Enum> stats = new List<Enum>(_statsValues.Keys);
                 
                 Enum currentStat = stats[s_random.Next(stats.Count)];
 
-                float currentStatValue = _stats[currentStat];
+                float currentStatValue = _statsValues[currentStat];
                 float currentStatIncrement = _statsIncrements[currentStat];
 
-                if(_stats.TryGetValue(currentStat, out currentStatValue))
+                if(_statsValues.TryGetValue(currentStat, out currentStatValue))
                 {
-                    _stats.Remove(currentStat);
-                    _stats.Add(currentStat, currentStatValue += currentStatIncrement);
+                    _statsValues.Remove(currentStat);
+                    _statsValues.Add(currentStat, currentStatValue += currentStatIncrement);
                     StatsPoints--;
                 }
             }
         }
 
-        public void PrintInfo()
-        {
-            Console.WriteLine("Тут должен быть тип солдата");
+        //public virtual void Attack(Fighter enemy, float damage = 0)
+        //{
+        //    if (damage == 0)
+        //    {
+        //        damage = Power;
+        //    }
 
-            foreach(var stat in _stats)
+        //    Console.WriteLine($"{Name}: Пытается нанести {damage} урона");
+
+        //    enemy.TakeDamage(damage);
+        //}
+
+        //protected virtual void TakeDamage(float damage)
+        //{
+        //    if (damage > Armor / ArmorDivider)
+        //    {
+        //        float damageRecieved = damage - Armor / ArmorDivider;
+        //        Health -= damageRecieved;
+        //        Console.WriteLine($"{Name}: Получено {damageRecieved} урона");
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"{Name}: Урон не прошёл");
+        //    }
+
+        //    if (Health < 0)
+        //    {
+        //        Health = 0;
+        //    }
+        //}
+
+        public virtual void PrintInfo()
+        {
+            // Сначала логично указать тип конкретного воина при переопределении метода
+
+            foreach(var stat in _statsValues)
             {
-                Console.WriteLine($"Параметр: {stat.Key} Значение: {stat.Value}");
+                string statName;
+                string statTranslation;
+
+                if (_statsTranslation.TryGetValue(stat.Key, out statTranslation))
+                {
+                    statName = statTranslation;
+                }
+                else
+                {
+                    statName = stat.Key.ToString();
+                }
+
+                Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
             }
+        }
+    }
+
+    internal class SimpleSoldier : Soldier
+    {
+        public override void PrintInfo()
+        {
+            Console.WriteLine("Это обычный солдат, тут не на что смотреть =(");
+            base.PrintInfo();
         }
     }
 
