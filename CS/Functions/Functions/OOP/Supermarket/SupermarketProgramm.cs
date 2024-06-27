@@ -5,39 +5,43 @@ namespace Functions.OOP.Supermarket
 {
     internal class SupermarketProgramm
     {
-        public static void Main1()
+        public static void Main()
         {
             Supermarket supermarket = new Supermarket();
-            
+
             supermarket.Run();
         }
     }
 
     internal class Supermarket
     {
+        public IEnumerable<Product> Products => _products;
+        
+        private readonly List<Product> _products;
         private Random _random;
         private float _revenue;
         private List<Client> _clients;
-        private readonly List<Product> _products = new List<Product>()
-        {
-            new Product("Молоко", 56),
-            new Product("Яйца", 48),
-            new Product("Колбаса", 100),
-            new Product("Хлеб", 10.5f),
-            new Product("Мороженое", 25),
-            new Product("Изюм", 59)
-        };
+
 
         public Supermarket()
         {
             _random = new Random();
             _clients = new List<Client>();
+            _products = new List<Product>()
+            {
+                new Product("Молоко", 56),
+                new Product("Яйца", 48),
+                new Product("Колбаса", 100),
+                new Product("Хлеб", 10.5f),
+                new Product("Мороженое", 25),
+                new Product("Изюм", 59)
+            };
         }
 
         public void Run()
         {
             Console.WriteLine("Супермаркет начинает свою работу");
-         
+
             CreateClients();
 
             foreach (Client client in _clients)
@@ -45,11 +49,11 @@ namespace Functions.OOP.Supermarket
                 Console.WriteLine("\nНовый покупатель выбирает покупки");
 
                 client.ChoseProducts();
-                
+
                 while (client.IsBasketPaid == false)
                 {
                     float totalPrice = GetTotalPrice(client);
-                    
+
                     if (client.TryPayProducts(totalPrice))
                     {
                         _revenue += totalPrice;
@@ -66,24 +70,24 @@ namespace Functions.OOP.Supermarket
         public float GetTotalPrice(Client client)
         {
             float totalPrice = 0;
-            
+
             foreach (Product product in client.Basket.Products)
             {
                 totalPrice += product.Price;
             }
 
             Console.WriteLine($"Сумма покупок клиента - {totalPrice}");
-            
+
             return totalPrice;
         }
 
         private void CreateClients()
         {
             Console.WriteLine("Появляется очередь из покупателей.");
-            _clients.Add(new Client(_random, _products, 5, 100));
-            _clients.Add(new Client(_random, _products, 3, 150));
-            _clients.Add(new Client(_random, _products, 10, 200));
-            _clients.Add(new Client(_random, _products, 4, 100));
+            _clients.Add(new Client(_random, Products, 5, 100));
+            _clients.Add(new Client(_random, Products, 3, 150));
+            _clients.Add(new Client(_random, Products, 10, 200));
+            _clients.Add(new Client(_random, Products, 4, 100));
         }
     }
 
@@ -91,21 +95,21 @@ namespace Functions.OOP.Supermarket
     {
         private int _maxProductsCount;
         private float _money;
+        private IEnumerable<Product> _products;
         private Bag _bag;
 
-        public Client(Random random, List<Product> products, int maxProductsCount, int money)
+        public Client(Random random, IEnumerable<Product> products, int maxProductsCount, int money)
         {
             _maxProductsCount = maxProductsCount;
             _money = money;
             _bag = new Bag();
+            _products = products;
             Random = random;
-            Products = products;
-            Basket = new Basket(Random, Products);
+            Basket = new Basket(Random, _products);
             IsBasketPaid = false;
         }
 
         public Random Random { get; private set; }
-        public List<Product> Products { get; private set; }
         public Basket Basket { get; private set; }
         public bool IsBasketPaid { get; private set; }
 
@@ -129,7 +133,7 @@ namespace Functions.OOP.Supermarket
             {
                 Console.WriteLine("Клиент не смог оплатить покупки");
                 Console.Write("Клиент выкладывает один продукт: ");
-                
+
                 Basket.RemoveRandomProduct();
 
                 return false;
@@ -139,7 +143,7 @@ namespace Functions.OOP.Supermarket
         public void PackProducts()
         {
             Console.WriteLine("Клиент упаковывает покупки");
-            
+
             _bag.AddProducts(Basket.RemoveAllProducts());
 
             Console.WriteLine("Клиент упаковал покупки и ушёл довольный");
@@ -148,10 +152,10 @@ namespace Functions.OOP.Supermarket
 
     internal class Basket
     {
+        private readonly List<Product> _productsAvailible;
         private Random _random;
-        private List<Product> _productsAvailible;
 
-        public Basket(Random random, List<Product> products)
+        public Basket(Random random, IEnumerable<Product> products)
         {
             _productsAvailible = new List<Product>(products);
             _random = random;
@@ -175,7 +179,7 @@ namespace Functions.OOP.Supermarket
             int removeIndex = _random.Next(Products.Count);
 
             Console.WriteLine($"{Products[removeIndex].Name}");
-            
+
             Products.RemoveAt(removeIndex);
         }
 
@@ -201,7 +205,7 @@ namespace Functions.OOP.Supermarket
             {
                 int newProductId = _random.Next(_productsAvailible.Count);
                 Products.Add(_productsAvailible[newProductId]);
-                
+
                 Console.WriteLine($"В корзину добавлен новый продукт: {_productsAvailible[newProductId].Name}");
             }
         }

@@ -6,7 +6,7 @@ namespace Functions.OOP.War
 {
     internal class WarProgram
     {
-        public static void Main()
+        public static void Main1()
         {
             SimpleSoldier testSoldier1 = new SimpleSoldier(1);
             SimpleSoldier testSoldier2 = new SimpleSoldier(2);
