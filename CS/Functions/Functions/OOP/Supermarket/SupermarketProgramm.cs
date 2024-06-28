@@ -47,7 +47,7 @@ namespace Functions.OOP.Supermarket
         {
             float totalPrice = 0;
 
-            foreach (Product product in client.Basket.Products)
+            foreach (Product product in client.Products)
             {
                 totalPrice += product.Price;
             }
@@ -93,7 +93,7 @@ namespace Functions.OOP.Supermarket
         {
             Console.WriteLine("\nНовый покупатель выбирает покупки");
 
-            client.ChoseProducts();
+            client.ChoseProducts(_productsCopy);
 
             while (client.IsBasketPaid == false)
             {
@@ -112,25 +112,27 @@ namespace Functions.OOP.Supermarket
     {
         private int _maxProductsCount;
         private float _money;
-        private IEnumerable<Product> _products;
-        private Bag _bag;
+        private IEnumerable<Product> _productsAvailible;
+        private List<Product> _bag;
+        private Basket _basket;
 
-        public Client(IEnumerable<Product> products, int maxProductsCount, int money)
+        public Client(IEnumerable<Product> productsAvailible, int maxProductsCount, int money)
         {
             _maxProductsCount = maxProductsCount;
             _money = money;
-            _bag = new Bag();
-            _products = products;
-            Basket = new Basket(_products);
+            _bag = new List<Product>();
+            _productsAvailible = productsAvailible;
+            _basket = new Basket();
             IsBasketPaid = false;
         }
 
-        public Basket Basket { get; private set; }
+        public IEnumerable<Product> Products => _basket.Products;
         public bool IsBasketPaid { get; private set; }
 
-        public void ChoseProducts()
+        public void ChoseProducts(IEnumerable<Product> products)
         {
-            Basket.AddRandomProducts(_maxProductsCount);
+            List<Product> productsAvailible = new List<Product>(products);
+            _basket.AddRandomProducts(productsAvailible, _maxProductsCount);
         }
 
         public bool CanPayProducts(float totalPrice)
@@ -158,14 +160,14 @@ namespace Functions.OOP.Supermarket
         {
             Console.Write("Клиент выкладывает один случайный продукт из корзины: ");
 
-            Basket.RemoveRandomProduct();
+            _basket.RemoveRandomProduct();
         }
 
         public void PackProducts()
         {
             Console.WriteLine("Клиент упаковывает покупки");
 
-            _bag.AddProducts(Basket.RemoveAllProducts());
+            _bag.AddRange(_basket.RemoveAllProducts());
 
             Console.WriteLine("Клиент упаковал покупки и ушёл довольный");
         }
@@ -173,13 +175,11 @@ namespace Functions.OOP.Supermarket
 
     internal class Basket
     {
-        private readonly List<Product> _productsAvailible;
         private Random _random;
         private List<Product> _products;
 
-        public Basket(IEnumerable<Product> productsAvailible)
+        public Basket()
         {
-            _productsAvailible = new List<Product>(productsAvailible);
             _random = Util.Random;
             _products = new List<Product>();
         }
@@ -209,34 +209,16 @@ namespace Functions.OOP.Supermarket
             return copyOfProducts;
         }
 
-        public void AddRandomProducts(int maxCount)
+        public void AddRandomProducts(List<Product> productsAvailible, int maxCount)
         {
             int productsCount = _random.Next(1, maxCount + 1);
 
             for (int i = 0; i < productsCount; i++)
             {
-                int newProductId = _random.Next(_productsAvailible.Count);
-                _products.Add(_productsAvailible[newProductId]);
+                int newProductId = _random.Next(productsAvailible.Count);
+                _products.Add(productsAvailible[newProductId]);
 
-                Console.WriteLine($"В корзину добавлен новый продукт: {_productsAvailible[newProductId].Name}");
-            }
-        }
-    }
-
-    internal class Bag
-    {
-        public List<Product> Products;
-
-        public Bag()
-        {
-            Products = new List<Product>();
-        }
-
-        public void AddProducts(List<Product> newProducts)
-        {
-            foreach (Product product in newProducts)
-            {
-                Products.Add(product);
+                Console.WriteLine($"В корзину добавлен новый продукт: {productsAvailible[newProductId].Name}");
             }
         }
     }
