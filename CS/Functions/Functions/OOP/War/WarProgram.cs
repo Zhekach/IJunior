@@ -1,6 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+///TODO add IMultiAtackable for soldiers
+///!!!!!Добавить солдат с атакой нескольких врагов!!!!
+///!!!!!Прописать их в рандомной генерации!!!!!
+///Написать механику для солдат с множественной атакой
+///Поменять printInfo Для солдат на трёхсекционное - Заголовок, базовые статы, уникальные статы. И прописать это в абстрактном классе
+///
 
 namespace Functions.OOP.War
 {
@@ -24,6 +31,59 @@ namespace Functions.OOP.War
         }
     }
 
+    internal class Squad
+    {
+        private int _size;
+        private List<Soldier> _soldiers;
+
+        public Squad(int size)
+        {
+            _size = size;
+            _soldiers = AddRandomSoldiers(_size);
+        }
+
+        private List<Soldier> AddRandomSoldiers(int size)
+        {
+            List<Soldier> soldiersResult = new List<Soldier>();
+
+            for(int i = 0; i< size; i++)
+            {
+                soldiersResult.Add(CreateRandomSoldier());
+            }
+
+            return soldiersResult;
+        }
+
+        private Soldier CreateRandomSoldier()
+        {
+            Soldier soldierResult;
+            int counter = 0;
+            List<SoldierTypes> soldierTypes = Enum.GetValues(typeof(SoldierTypes)).Cast<SoldierTypes>().ToList();
+
+            SoldierTypes randomSoldierType = soldierTypes[Util.Random.Next(soldierTypes.Count)];
+
+            switch (randomSoldierType)
+            {
+                case (SoldierTypes.Simple):
+                    soldierResult = new SimpleSoldier(counter);
+                    counter++;
+                    break;
+                case (SoldierTypes.Powerful):
+                    soldierResult = new PowerfulSoldier(counter);
+                    counter++;
+                    break;
+                default:
+                    soldierResult = new SimpleSoldier(counter);
+
+                    Console.WriteLine("Произошла ошибка выбора типа случайного солдата");
+
+                    return soldierResult;
+            }
+
+            return soldierResult;
+        }
+    }
+
     internal abstract class Soldier
     {
         protected Dictionary<Enum, float> _statsValues;
@@ -38,12 +98,13 @@ namespace Functions.OOP.War
             _statsIncrements = InitiaizeStatsIncrements();
             _statsTranslation = InitiaizeStatsTranslators();
             this.DistributeStats();
-            ID =id;
+            ID = id;
         }
 
         public string Type { get; protected set; }
         public int ID { get; protected set; }
-        public float Health {
+        public float Health
+        {
             get => _statsValues[SoldierStats.Health];
             set => _statsValues[SoldierStats.Health] = value;
         }
@@ -164,7 +225,7 @@ namespace Functions.OOP.War
             Type = "Простой";
         }
     }
-    
+
     internal class PowerfulSoldier : Soldier
     {
         private float _powerMultiplier = 1.5f;
@@ -182,7 +243,7 @@ namespace Functions.OOP.War
         }
 
         public override void PrintInfo()
-        { 
+        {
             base.PrintInfo();
 
             Console.WriteLine($"Множитель урона: {_powerMultiplier}");
