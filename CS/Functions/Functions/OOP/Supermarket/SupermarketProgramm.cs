@@ -5,7 +5,7 @@ namespace Functions.OOP.Supermarket
 {
     internal class SupermarketProgramm
     {
-        public static void Main()
+        public static void Main1()
         {
             Supermarket supermarket = new Supermarket();
 

@@ -6,7 +6,7 @@ namespace Functions.OOP.War
 {
     internal class WarProgram
     {
-        public static void Main1()
+        public static void Main()
         {
             SimpleSoldier testSoldier1 = new SimpleSoldier(1);
             SimpleSoldier testSoldier2 = new SimpleSoldier(2);
@@ -24,87 +24,25 @@ namespace Functions.OOP.War
 
     internal abstract class Soldier
     {
-        static readonly Random s_random = new Random();
-
-        private Dictionary<Enum, float> _statsValues = new Dictionary<Enum, float>()
-        {
-            { SoldierStats.Health, 0 },
-            { SoldierStats.Power, 0 },
-            { SoldierStats.Armor, 0 }
-        };
-        private readonly Dictionary<Enum, float> _statsIncrements = new Dictionary<Enum, float>()
-        {
-            { SoldierStats.Health, 1f },
-            { SoldierStats.Power, 0.75f },
-            { SoldierStats.Armor, 0.5f }
-        };
-        private readonly Dictionary<Enum, string> _statsTranslation = new Dictionary<Enum, string>()
-        {
-            { SoldierStats.Health, "Здоровье"},
-            { SoldierStats.Power, "Урон"},
-            { SoldierStats.Armor, "Броня"}
-        };
+        private Dictionary<Enum, float> _statsValues;
+        private readonly Dictionary<Enum, float> _statsIncrements;
+        private readonly Dictionary<Enum, string> _statsTranslation;
 
         private int StatsPoints = 9;
 
         protected Soldier()
         {
+            _statsValues = InitiaizeStatsValues();
+            _statsIncrements = InitiaizeStatsIncrements();
+            _statsTranslation = InitiaizeStatsTranslators();
             this.DistributeStats();
         }
 
         public string Type { get; protected set; }
         public int ID { get; protected set; }
-        public float Health { get => _statsValues[SoldierStats.Health];}
-
-        private void DistributeStats()
-        {
-            while (StatsPoints > 0)
-            {
-                List<Enum> stats = new List<Enum>(_statsValues.Keys);
-
-                Enum currentStat = stats[s_random.Next(stats.Count)];
-
-                float currentStatValue = _statsValues[currentStat];
-                float currentStatIncrement = _statsIncrements[currentStat];
-
-                if (_statsValues.TryGetValue(currentStat, out currentStatValue))
-                {
-                    _statsValues.Remove(currentStat);
-                    _statsValues.Add(currentStat, currentStatValue += currentStatIncrement);
-                    StatsPoints--;
-                }
-            }
-        }
-
-        public virtual void Attack(Soldier enemy, float damage = 0)
-        {
-            if (damage == 0)
-            {
-                damage = _statsValues[SoldierStats.Power];
-            }
-
-            Console.WriteLine($"{Type}{ID}: Пытается нанести {damage} урона");
-
-            enemy.TakeDamage(damage);
-        }
-
-        protected virtual void TakeDamage(float damage)
-        {
-            if (damage > _statsValues[SoldierStats.Armor])
-            {
-                float damageRecieved = damage - _statsValues[SoldierStats.Armor];
-                _statsValues[SoldierStats.Health] -= damageRecieved;
-                Console.WriteLine($"{Type}{ID}: Получено {damageRecieved} урона");
-            }
-            else
-            {
-                Console.WriteLine($"{Type}{ID}: Урон не прошёл");
-            }
-
-            if (_statsValues[SoldierStats.Health] < 0)
-            {
-                _statsValues[SoldierStats.Health] = 0;
-            }
+        public float Health {
+            get => _statsValues[SoldierStats.Health];
+            set => _statsValues[SoldierStats.Health] = value;
         }
 
         public virtual void PrintInfo()
@@ -130,6 +68,94 @@ namespace Functions.OOP.War
 
             Console.WriteLine("");
         }
+
+        public virtual void Attack(Soldier enemy, float damage = 0)
+        {
+            if (damage == 0)
+            {
+                damage = _statsValues[SoldierStats.Power];
+            }
+
+            Console.WriteLine($"{Type}{ID}: Пытается нанести {damage} урона");
+
+            enemy.TakeDamage(damage);
+        }
+
+        protected virtual void TakeDamage(float damage)
+        {
+            if (damage > _statsValues[SoldierStats.Armor])
+            {
+                float damageRecieved = damage - _statsValues[SoldierStats.Armor];
+                Health -= damageRecieved;
+
+                Console.WriteLine($"{Type}{ID}: Получено {damageRecieved} урона");
+            }
+            else
+            {
+                Console.WriteLine($"{Type}{ID}: Урон не прошёл");
+            }
+
+            if (Health < 0)
+            {
+                Health = 0;
+            }
+        }
+
+        private Dictionary<Enum, float> InitiaizeStatsValues()
+        {
+            Dictionary<Enum, float> result = new Dictionary<Enum, float>()
+            {
+                { SoldierStats.Health, 0f },
+                { SoldierStats.Power, 0f },
+                { SoldierStats.Armor, 0f }
+            };
+
+            return result;
+        }
+
+        private Dictionary<Enum, float> InitiaizeStatsIncrements()
+        {
+            Dictionary<Enum, float> result = new Dictionary<Enum, float>()
+            {
+                { SoldierStats.Health, 1f },
+                { SoldierStats.Power, 0.75f },
+                { SoldierStats.Armor, 0.5f }
+            };
+
+            return result;
+        }
+
+        private Dictionary<Enum, string> InitiaizeStatsTranslators()
+        {
+            Dictionary<Enum, string> result = new Dictionary<Enum, string>()
+            {
+                { SoldierStats.Health, "Здоровье"},
+                { SoldierStats.Power, "Урон"},
+                { SoldierStats.Armor, "Броня"},
+                { SoldierStats.PowerMultiplier, "Множитель урона" },
+                { SoldierStats.MultipleDamage, "Урон по нескольким врагам" },
+                { SoldierStats.MultipleDamageRepeat, "Возмона повторная атака по врагам" },
+            };
+
+            return result;
+        }
+
+        private void DistributeStats()
+        {
+            while (StatsPoints > 0)
+            {
+                List<Enum> stats = new List<Enum>(_statsValues.Keys);
+                Enum currentStat = stats[Util.Random.Next(stats.Count)];
+
+                float currentStatValue = _statsValues[currentStat];
+                float currentStatIncrement = _statsIncrements[currentStat];
+
+                currentStatValue += currentStatIncrement;
+                _statsValues[currentStat] = currentStatValue;
+
+                StatsPoints--;
+            }
+        }
     }
 
     internal class SimpleSoldier : Soldier
@@ -141,10 +167,115 @@ namespace Functions.OOP.War
         }
     }
 
+    //internal struct SoldierStat
+    //{
+    //    public bool IsBool { get; private set; }
+    //    public bool IsInt { get; private set; }
+    //    public bool IsFloat { get; private set; }
+    //    public bool IsString { get; private set; }
+
+    //    public bool ValueBool { get; private set; }
+    //    public int ValueInt { get; private set; }
+    //    public float ValueFloat 
+    //    { 
+    //        get { return this.ValueFloat; }
+    //        set { if (IsFloat) { ValueFloat = value; }}
+    //    }
+    //    public string ValueString { get; private set; }
+
+    //    public SoldierStat(bool value)
+    //    {
+    //        IsBool = true;
+    //        IsInt = false;
+    //        IsFloat = false;
+    //        IsString = false;
+    //        ValueBool = value;
+    //        ValueInt = 0;
+    //        ValueFloat = 0f;
+    //        ValueString = null;
+    //    }
+
+    //    public SoldierStat(int value)
+    //    {
+    //        IsBool = false;
+    //        IsInt = true;
+    //        IsFloat = false;
+    //        IsString = false;
+    //        ValueBool = false;
+    //        ValueInt = value;
+    //        ValueFloat = 0f;
+    //        ValueString = null;
+    //    }
+
+    //    public SoldierStat(float value)
+    //    {
+    //        IsBool = false;
+    //        IsInt = false;
+    //        IsFloat = true;
+    //        IsString = false;
+    //        ValueBool = false;
+    //        ValueInt = 0;
+    //        ValueFloat = value;
+    //        ValueString = null;
+    //    }
+        
+    //    public SoldierStat(string value)
+    //    {
+    //        IsBool = false;
+    //        IsInt = false;
+    //        IsFloat = false;
+    //        IsString = true;
+    //        ValueBool = false;
+    //        ValueInt = 0;
+    //        ValueFloat = 0f;
+    //        ValueString = value;
+    //    }
+
+    //    public void SetFloat(float value)
+    //    {
+    //        if (IsFloat)
+    //        {
+    //            ValueFloat = value;
+    //        }
+    //    }
+
+    //    public float ToFloat()
+    //    {
+    //        if (IsFloat)
+    //        {
+    //            return ValueFloat;
+    //        }
+    //        else if (IsInt)
+    //        {
+    //            return (float)ValueInt;
+    //        }
+    //        else
+    //        {
+    //            return 0f;
+    //        }
+    //    }
+    //}
+
     enum SoldierStats
     {
-        Health = 0,
-        Power = 1,
-        Armor = 2
+        Health,
+        Power,
+        Armor,
+        PowerMultiplier,
+        MultipleDamage,
+        MultipleDamageRepeat
+    }
+
+    enum SoldierTypes
+    {
+        Simple,
+        Powerful,
+        MultipleUniqe,
+        MultipleRepeat
+    }
+
+    internal class Util
+    {
+        public static Random Random = new Random();
     }
 }
