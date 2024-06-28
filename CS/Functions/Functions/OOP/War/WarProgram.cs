@@ -8,13 +8,15 @@ namespace Functions.OOP.War
     {
         public static void Main()
         {
-            SimpleSoldier testSoldier1 = new SimpleSoldier(1);
-            SimpleSoldier testSoldier2 = new SimpleSoldier(2);
+            Soldier testSoldier1 = new SimpleSoldier(1);
+            Soldier testSoldier2 = new PowerfulSoldier(2);
 
             testSoldier1.PrintInfo();
             testSoldier2.PrintInfo();
 
+            Console.WriteLine();
             testSoldier1.Attack(testSoldier2);
+            Console.WriteLine();
             testSoldier2.Attack(testSoldier1);
 
             testSoldier1.PrintInfo();
@@ -24,18 +26,19 @@ namespace Functions.OOP.War
 
     internal abstract class Soldier
     {
-        private Dictionary<Enum, float> _statsValues;
-        private readonly Dictionary<Enum, float> _statsIncrements;
-        private readonly Dictionary<Enum, string> _statsTranslation;
+        protected Dictionary<Enum, float> _statsValues;
+        protected readonly Dictionary<Enum, float> _statsIncrements;
+        protected readonly Dictionary<Enum, string> _statsTranslation;
 
         private int StatsPoints = 9;
 
-        protected Soldier()
+        protected Soldier(int id)
         {
             _statsValues = InitiaizeStatsValues();
             _statsIncrements = InitiaizeStatsIncrements();
             _statsTranslation = InitiaizeStatsTranslators();
             this.DistributeStats();
+            ID =id;
         }
 
         public string Type { get; protected set; }
@@ -47,6 +50,7 @@ namespace Functions.OOP.War
 
         public virtual void PrintInfo()
         {
+            Console.WriteLine();
             Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
 
             foreach (var stat in _statsValues)
@@ -65,8 +69,6 @@ namespace Functions.OOP.War
 
                 Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
             }
-
-            Console.WriteLine("");
         }
 
         public virtual void Attack(Soldier enemy, float damage = 0)
@@ -131,10 +133,7 @@ namespace Functions.OOP.War
             {
                 { SoldierStats.Health, "Здоровье"},
                 { SoldierStats.Power, "Урон"},
-                { SoldierStats.Armor, "Броня"},
-                { SoldierStats.PowerMultiplier, "Множитель урона" },
-                { SoldierStats.MultipleDamage, "Урон по нескольким врагам" },
-                { SoldierStats.MultipleDamageRepeat, "Возмона повторная атака по врагам" },
+                { SoldierStats.Armor, "Броня"}
             };
 
             return result;
@@ -160,110 +159,45 @@ namespace Functions.OOP.War
 
     internal class SimpleSoldier : Soldier
     {
-        public SimpleSoldier(int id)
+        public SimpleSoldier(int id) : base(id)
         {
-            ID = id;
             Type = "Простой";
         }
     }
+    
+    internal class PowerfulSoldier : Soldier
+    {
+        private float _powerMultiplier = 1.5f;
 
-    //internal struct SoldierStat
-    //{
-    //    public bool IsBool { get; private set; }
-    //    public bool IsInt { get; private set; }
-    //    public bool IsFloat { get; private set; }
-    //    public bool IsString { get; private set; }
+        public PowerfulSoldier(int id) : base(id)
+        {
+            Type = "Мощный";
+        }
 
-    //    public bool ValueBool { get; private set; }
-    //    public int ValueInt { get; private set; }
-    //    public float ValueFloat 
-    //    { 
-    //        get { return this.ValueFloat; }
-    //        set { if (IsFloat) { ValueFloat = value; }}
-    //    }
-    //    public string ValueString { get; private set; }
+        public override void Attack(Soldier enemy, float damage = 0f)
+        {
+            damage = _statsValues[SoldierStats.Power] * _powerMultiplier;
 
-    //    public SoldierStat(bool value)
-    //    {
-    //        IsBool = true;
-    //        IsInt = false;
-    //        IsFloat = false;
-    //        IsString = false;
-    //        ValueBool = value;
-    //        ValueInt = 0;
-    //        ValueFloat = 0f;
-    //        ValueString = null;
-    //    }
+            base.Attack(enemy, damage);
+        }
 
-    //    public SoldierStat(int value)
-    //    {
-    //        IsBool = false;
-    //        IsInt = true;
-    //        IsFloat = false;
-    //        IsString = false;
-    //        ValueBool = false;
-    //        ValueInt = value;
-    //        ValueFloat = 0f;
-    //        ValueString = null;
-    //    }
+        public override void PrintInfo()
+        { 
+            base.PrintInfo();
 
-    //    public SoldierStat(float value)
-    //    {
-    //        IsBool = false;
-    //        IsInt = false;
-    //        IsFloat = true;
-    //        IsString = false;
-    //        ValueBool = false;
-    //        ValueInt = 0;
-    //        ValueFloat = value;
-    //        ValueString = null;
-    //    }
-        
-    //    public SoldierStat(string value)
-    //    {
-    //        IsBool = false;
-    //        IsInt = false;
-    //        IsFloat = false;
-    //        IsString = true;
-    //        ValueBool = false;
-    //        ValueInt = 0;
-    //        ValueFloat = 0f;
-    //        ValueString = value;
-    //    }
-
-    //    public void SetFloat(float value)
-    //    {
-    //        if (IsFloat)
-    //        {
-    //            ValueFloat = value;
-    //        }
-    //    }
-
-    //    public float ToFloat()
-    //    {
-    //        if (IsFloat)
-    //        {
-    //            return ValueFloat;
-    //        }
-    //        else if (IsInt)
-    //        {
-    //            return (float)ValueInt;
-    //        }
-    //        else
-    //        {
-    //            return 0f;
-    //        }
-    //    }
-    //}
+            Console.WriteLine($"Множитель урона: {_powerMultiplier}");
+        }
+    }
 
     enum SoldierStats
     {
         Health,
         Power,
-        Armor,
-        PowerMultiplier,
-        MultipleDamage,
-        MultipleDamageRepeat
+        Armor
+
+        //PowerMultiplier
+        //MultipleDamage,
+        //MultipleDamageRepeat
     }
 
     enum SoldierTypes
