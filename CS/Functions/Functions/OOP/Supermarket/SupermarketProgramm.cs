@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Functions.OOP.ShopProgram;
+using System;
 using System.Collections.Generic;
 
 namespace Functions.OOP.Supermarket
@@ -93,7 +94,7 @@ namespace Functions.OOP.Supermarket
         {
             Console.WriteLine("\nНовый покупатель выбирает покупки");
 
-            client.ChoseProducts(_productsCopy);
+            GiveProducts(client);
 
             while (client.IsBasketPaid == false)
             {
@@ -106,34 +107,46 @@ namespace Functions.OOP.Supermarket
                 }
             }
         }
+
+        private void GiveProducts(Client client)
+        {
+            int availibleProducts = client.MaxProductsCount;
+
+            while (availibleProducts > 0)
+            {
+                int newProductId = Util.GetRandomNumber(_products.Count);
+                Product newProduct = _products[newProductId];
+
+                client.AddProductToBasket(newProduct);
+
+                Console.WriteLine($"В корзину добавлен новый продукт: {newProduct.Name}");
+
+                availibleProducts--;
+            }
+        }
     }
+
 
     internal class Client
     {
-        private int _maxProductsCount;
         private float _money;
         private IEnumerable<Product> _productsAvailible;
         private List<Product> _bag;
-        private Basket _basket;
+        private List<Product> _basket;
 
         public Client(IEnumerable<Product> productsAvailible, int maxProductsCount, int money)
         {
-            _maxProductsCount = maxProductsCount;
             _money = money;
             _productsAvailible = productsAvailible;
             _bag = new List<Product>();
-            _basket = new Basket();
+            _basket = new List<Product>();
             IsBasketPaid = false;
+            MaxProductsCount = maxProductsCount;
         }
 
-        public IEnumerable<Product> Products => _basket.Products;
+        public IEnumerable<Product> Products => _basket;
         public bool IsBasketPaid { get; private set; }
-
-        public void ChoseProducts(IEnumerable<Product> products)
-        {
-            List<Product> productsAvailible = new List<Product>(products);
-            _basket.AddRandomProducts(productsAvailible, _maxProductsCount);
-        }
+        public int MaxProductsCount { get; private set; }
 
         public bool CanPayProducts(float totalPrice)
         {
@@ -150,74 +163,48 @@ namespace Functions.OOP.Supermarket
             {
                 Console.WriteLine("Клиент не смог оплатить покупки");
 
-                RemoveRandomProduct();
+                RemoveRandomProduct(_basket);
 
                 return false;
             }
         }
-
-        public void RemoveRandomProduct()
-        {
-            Console.Write("Клиент выкладывает один случайный продукт из корзины: ");
-
-            _basket.RemoveRandomProduct();
-        }
-
         public void PackProducts()
         {
             Console.WriteLine("Клиент упаковывает покупки");
 
-            _bag.AddRange(_basket.RemoveAllProducts());
+            _bag.AddRange(RemoveAllProducts(_basket));
 
             Console.WriteLine("Клиент упаковал покупки и ушёл довольный");
         }
-    }
 
-    internal class Basket
-    {
-        private List<Product> _products;
-
-        public Basket()
+        public void AddProductToBasket(Product product)
         {
-            _products = new List<Product>();
+            _basket.Add(product);
         }
 
-        public IEnumerable<Product> Products => _products;
-
-        public void RemoveRandomProduct()
+        private void RemoveRandomProduct(List<Product> products)
         {
-            int removeIndex = Util.GetRandomNumber(_products.Count);
+            Console.Write("Клиент выкладывает один случайный продукт из корзины: ");
 
-            Console.WriteLine($"{_products[removeIndex].Name}");
+            int removeIndex = Util.GetRandomNumber(products.Count);
 
-            _products.RemoveAt(removeIndex);
+            Console.WriteLine($"{products[removeIndex].Name}");
+
+            products.RemoveAt(removeIndex);
         }
 
-        public List<Product> RemoveAllProducts()
+        private List<Product> RemoveAllProducts(List<Product> products)
         {
             List<Product> copyOfProducts = new List<Product>();
 
-            foreach (Product product in _products)
+            foreach (Product product in products)
             {
                 copyOfProducts.Add(product);
             }
 
-            _products.Clear();
+            products.Clear();
 
             return copyOfProducts;
-        }
-
-        public void AddRandomProducts(List<Product> productsAvailible, int maxCount)
-        {
-            int productsCount = Util.GetRandomNumber(1, maxCount + 1);
-
-            for (int i = 0; i < productsCount; i++)
-            {
-                int newProductId = Util.GetRandomNumber(productsAvailible.Count);
-                _products.Add(productsAvailible[newProductId]);
-
-                Console.WriteLine($"В корзину добавлен новый продукт: {productsAvailible[newProductId].Name}");
-            }
         }
     }
 
