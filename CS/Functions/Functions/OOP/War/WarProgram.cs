@@ -4,29 +4,35 @@ using System.Linq;
 using System.Threading.Tasks;
 ///TODO add IMultiAtackable for soldiers
 ///!!!!!Добавить солдат с атакой нескольких врагов!!!!
+///Сначала без повторения
+///Тест
+///
+/// Добавить метод удаления мертвых солдат после получения урона отрядом
+/// 
+///
+/// Потом с повторением
 ///!!!!!Прописать их в рандомной генерации!!!!!
-///Написать механику для солдат с множественной атакой
+///И всё заново
+///
 ///
 
 namespace Functions.OOP.War
 {
     internal class WarProgram
     {
-        public static void Main1()
+        public static void Main()
         {
-            Soldier testSoldier1 = new SimpleSoldier(1);
-            Soldier testSoldier2 = new PowerfulSoldier(2);
+            Squad squad1 = new Squad(3, "Остолопы");
+            Squad squad2 = new Squad(2, "Бронтозавры");
 
-            testSoldier1.PrintInfo(true);
-            testSoldier2.PrintInfo(true);
-
+            squad1.PrintInfo();
             Console.WriteLine();
-            testSoldier1.Attack(testSoldier2);
+            squad2.PrintInfo();
             Console.WriteLine();
-            testSoldier2.Attack(testSoldier1);
 
-            testSoldier1.PrintInfo();
-            testSoldier2.PrintInfo();
+            squad1.Attack(squad2);
+            squad2.PrintInfo();
+            Console.WriteLine();
         }
     }
 
@@ -34,11 +40,85 @@ namespace Functions.OOP.War
     {
         private int _size;
         private List<Soldier> _soldiers;
+        private Squad _enemies;
+        private string _name;
 
-        public Squad(int size)
+        public Squad(int size, string name)
         {
             _size = size;
             _soldiers = AddRandomSoldiers(_size);
+            _name = name;
+        }
+
+        public IEnumerable<Soldier> Soldiers { get => _soldiers; }
+
+        public void Attack(Squad enemies)
+        {
+            _enemies = enemies;
+
+            foreach (Soldier soldier in _soldiers)
+            {
+                if (soldier is IMultiAtackable)
+                {
+                    MultipleUniqueSoldier multipleUniqueSoldier = (MultipleUniqueSoldier)soldier;
+                    multipleUniqueSoldier.AttackMultiple(_soldiers);
+                }
+                else
+                {
+                    Soldier enemy = ChooseOneEnemy();
+
+                    if (enemy != null)
+                    {
+                        soldier.Attack(enemy);
+                    }
+                }
+            }
+        }
+
+        public void PrintInfo(bool isFullInfo = false)
+        {
+            Console.WriteLine($"Отряд: {_name}\n" +
+                $"В составе:");
+
+            foreach (Soldier soldier in _soldiers)
+            {
+                if (isFullInfo)
+                {
+                    soldier.PrintInfo(true);
+                }
+                else
+                {
+                    soldier.PrintInfo();
+                }
+            }
+        }
+
+        private Soldier ChooseOneEnemy()
+        {
+            foreach (Soldier enemy in _enemies.Soldiers)
+            {
+                if (enemy.Health > 0)
+                {
+                    return enemy;
+                }
+            }
+
+            return null;
+        }
+
+        private List<Soldier> ChooseSeveralEnemies()
+        {
+            List<Soldier> soldiers = new List<Soldier>();
+
+            foreach (Soldier enemy in _enemies.Soldiers)
+            {
+                if (enemy.Health > 0)
+                {
+                    soldiers.Add(enemy);
+                }
+            }
+
+            return soldiers;
         }
 
         private List<Soldier> AddRandomSoldiers(int size)
@@ -47,16 +127,15 @@ namespace Functions.OOP.War
 
             for (int i = 0; i < size; i++)
             {
-                soldiersResult.Add(CreateRandomSoldier());
+                soldiersResult.Add(CreateRandomSoldier(i+1));
             }
 
             return soldiersResult;
         }
 
-        private Soldier CreateRandomSoldier()
+        private Soldier CreateRandomSoldier(int counter)
         {
             Soldier soldierResult;
-            int counter = 0;
             List<SoldierTypes> soldierTypes = Enum.GetValues(typeof(SoldierTypes)).Cast<SoldierTypes>().ToList();
 
             SoldierTypes randomSoldierType = soldierTypes[Util.Random.Next(soldierTypes.Count)];
@@ -65,12 +144,16 @@ namespace Functions.OOP.War
             {
                 case (SoldierTypes.Simple):
                     soldierResult = new SimpleSoldier(counter);
-                    counter++;
                     break;
                 case (SoldierTypes.Powerful):
                     soldierResult = new PowerfulSoldier(counter);
-                    counter++;
                     break;
+                //case (SoldierTypes.MultipleUniqe):
+                //    soldierResult = new MultipleUniqueSoldier(counter);
+                //    break;
+                //case (SoldierTypes.MultipleRepeat):
+                //    soldierResult = new MultipleRepeatSoldier(counter);
+                //    break;
                 default:
                     soldierResult = new SimpleSoldier(counter);
 
@@ -174,7 +257,7 @@ namespace Functions.OOP.War
         {
             Dictionary<Enum, float> result = new Dictionary<Enum, float>()
             {
-                { SoldierStats.Health, 0f },
+                { SoldierStats.Health, 1f },
                 { SoldierStats.Power, 0f },
                 { SoldierStats.Armor, 0f }
             };
@@ -262,22 +345,34 @@ namespace Functions.OOP.War
     internal class MultipleUniqueSoldier : Soldier, IMultiAtackable
     {
         private bool _isMultipleRepeat;
+        private int _maxEnemiesCount;
 
         public MultipleUniqueSoldier(int id) : base(id)
         {
             Type = "Атакует группу, единожды";
+            _maxEnemiesCount = 5;
         }
 
         public bool IsMultipleRepeat { get => _isMultipleRepeat; }
 
-        public override void Attack(Soldier enemy, float damage = 0)
-        {
-            base.Attack(enemy, damage);
-        }
-
         public void AttackMultiple(List<Soldier> list)
         {
+            int enemiesCounter = _maxEnemiesCount;
+            List<Soldier> attackedEnemies = new List<Soldier>();
 
+            while (enemiesCounter > 0)
+            {
+                foreach (Soldier soldier in list)
+                {
+                    if (attackedEnemies.Contains(soldier) == false)
+                    {
+                        Attack(soldier);
+                        attackedEnemies.Add(soldier);
+
+                        enemiesCounter--;
+                    }
+                }
+            }
         }
     }
 
@@ -293,10 +388,6 @@ namespace Functions.OOP.War
         Health,
         Power,
         Armor
-
-        //PowerMultiplier
-        //MultipleDamage,
-        //MultipleDamageRepeat
     }
 
     enum SoldierTypes
@@ -304,7 +395,7 @@ namespace Functions.OOP.War
         Simple,
         Powerful,
         MultipleUniqe,
-        MultipleRepeat
+ //       MultipleRepeat
     }
 
     internal class Util
