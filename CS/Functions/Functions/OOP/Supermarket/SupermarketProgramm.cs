@@ -5,7 +5,7 @@ namespace Functions.OOP.Supermarket
 {
     internal class SupermarketProgramm
     {
-        public static void Main1()
+        public static void Main()
         {
             Supermarket supermarket = new Supermarket();
 
@@ -120,8 +120,8 @@ namespace Functions.OOP.Supermarket
         {
             _maxProductsCount = maxProductsCount;
             _money = money;
-            _bag = new List<Product>();
             _productsAvailible = productsAvailible;
+            _bag = new List<Product>();
             _basket = new Basket();
             IsBasketPaid = false;
         }
@@ -175,12 +175,10 @@ namespace Functions.OOP.Supermarket
 
     internal class Basket
     {
-        private Random _random;
         private List<Product> _products;
 
         public Basket()
         {
-            _random = Util.Random;
             _products = new List<Product>();
         }
 
@@ -188,7 +186,7 @@ namespace Functions.OOP.Supermarket
 
         public void RemoveRandomProduct()
         {
-            int removeIndex = _random.Next(_products.Count);
+            int removeIndex = Util.GetRandomNumber(_products.Count);
 
             Console.WriteLine($"{_products[removeIndex].Name}");
 
@@ -211,11 +209,11 @@ namespace Functions.OOP.Supermarket
 
         public void AddRandomProducts(List<Product> productsAvailible, int maxCount)
         {
-            int productsCount = _random.Next(1, maxCount + 1);
+            int productsCount = Util.GetRandomNumber(1, maxCount + 1);
 
             for (int i = 0; i < productsCount; i++)
             {
-                int newProductId = _random.Next(productsAvailible.Count);
+                int newProductId = Util.GetRandomNumber(productsAvailible.Count);
                 _products.Add(productsAvailible[newProductId]);
 
                 Console.WriteLine($"В корзину добавлен новый продукт: {productsAvailible[newProductId].Name}");
@@ -243,6 +241,16 @@ namespace Functions.OOP.Supermarket
 
     internal class Util
     {
-        public static Random Random = new Random();
+        private static Random s_random = new Random();
+
+        public static int GetRandomNumber(int maxValue)
+        {
+            return s_random.Next(maxValue);
+        }
+
+        public static int GetRandomNumber(int minValue, int maxValue)
+        {
+            return s_random.Next(minValue, maxValue);
+        }
     }
 }
