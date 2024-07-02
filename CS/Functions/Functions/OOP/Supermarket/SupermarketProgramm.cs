@@ -1,6 +1,7 @@
 ﻿using Functions.OOP.ShopProgram;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Functions.OOP.Supermarket
 {
@@ -25,8 +26,6 @@ namespace Functions.OOP.Supermarket
             _products = CreateProducts();
             _clients = new List<Client>();
         }
-
-        private IEnumerable<Product> _productsCopy => _products;
 
         public void Run()
         {
@@ -81,10 +80,10 @@ namespace Functions.OOP.Supermarket
 
             List<Client> clients = new List<Client>()
             {
-                new Client(_productsCopy, 5, 100),
-                new Client(_productsCopy, 3, 150),
-                new Client(_productsCopy, 10, 200),
-                new Client(_productsCopy, 4, 100)
+                new Client(5, 100),
+                new Client(3, 150),
+                new Client(10, 200),
+                new Client(4, 100)
             };
 
             return clients;
@@ -102,8 +101,13 @@ namespace Functions.OOP.Supermarket
 
                 if (client.CanPayProducts(totalPrice))
                 {
+                    client.PayProducts(totalPrice);
                     _revenue += totalPrice;
                     client.PackProducts();
+                }
+                else
+                {
+                    client.RemoveRandomProduct();
                 }
             }
         }
@@ -114,12 +118,12 @@ namespace Functions.OOP.Supermarket
 
             while (availibleProducts > 0)
             {
-                int newProductId = Util.GetRandomNumber(_products.Count);
-                Product newProduct = _products[newProductId];
+                int productIndex = Util.GetRandomNumber(_products.Count);
+                Product product = _products[productIndex];
 
-                client.AddProductToBasket(newProduct);
+                client.AddProductToBasket(product);
 
-                Console.WriteLine($"В корзину добавлен новый продукт: {newProduct.Name}");
+                Console.WriteLine($"В корзину добавлен новый продукт: {product.Name}");
 
                 availibleProducts--;
             }
@@ -130,40 +134,34 @@ namespace Functions.OOP.Supermarket
     internal class Client
     {
         private float _money;
-        private IEnumerable<Product> _productsAvailible;
-        private List<Product> _bag;
         private List<Product> _basket;
+        private List<Product> _bag;
 
-        public Client(IEnumerable<Product> productsAvailible, int maxProductsCount, int money)
+        public Client(int maxProductsCount, int money)
         {
             _money = money;
-            _productsAvailible = productsAvailible;
-            _bag = new List<Product>();
             _basket = new List<Product>();
+            _bag = new List<Product>();
+
             IsBasketPaid = false;
             MaxProductsCount = maxProductsCount;
         }
 
-        public IEnumerable<Product> Products => _basket;
         public bool IsBasketPaid { get; private set; }
         public int MaxProductsCount { get; private set; }
+        public IEnumerable<Product> Products => _basket;
 
         public bool CanPayProducts(float totalPrice)
         {
             if (totalPrice <= _money)
             {
-                _money -= totalPrice;
-                IsBasketPaid = true;
-
-                Console.WriteLine("Клиент оплатил покупки");
+                Console.WriteLine("Клиент оплатит покупки");
 
                 return true;
             }
             else
             {
                 Console.WriteLine("Клиент не смог оплатить покупки");
-
-                RemoveRandomProduct(_basket);
 
                 return false;
             }
@@ -182,15 +180,21 @@ namespace Functions.OOP.Supermarket
             _basket.Add(product);
         }
 
-        private void RemoveRandomProduct(List<Product> products)
+        public void PayProducts(float totalPrice)
+        {
+            _money -= totalPrice;
+            IsBasketPaid = true;
+        }
+
+        public void RemoveRandomProduct()
         {
             Console.Write("Клиент выкладывает один случайный продукт из корзины: ");
 
-            int removeIndex = Util.GetRandomNumber(products.Count);
+            int productIndex = Util.GetRandomNumber(_basket.Count);
 
-            Console.WriteLine($"{products[removeIndex].Name}");
+            Console.WriteLine($"{_basket[productIndex].Name}");
 
-            products.RemoveAt(removeIndex);
+            _basket.RemoveAt(productIndex);
         }
 
         private List<Product> RemoveAllProducts(List<Product> products)

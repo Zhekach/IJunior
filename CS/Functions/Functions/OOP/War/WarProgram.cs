@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 ///!!!!!Добавить солдат с атакой нескольких врагов!!!!
 ///!!!!!Прописать их в рандомной генерации!!!!!
 ///Написать механику для солдат с множественной атакой
-///Поменять printInfo Для солдат на трёхсекционное - Заголовок, базовые статы, уникальные статы. И прописать это в абстрактном классе
 ///
 
 namespace Functions.OOP.War
@@ -18,8 +17,8 @@ namespace Functions.OOP.War
             Soldier testSoldier1 = new SimpleSoldier(1);
             Soldier testSoldier2 = new PowerfulSoldier(2);
 
-            testSoldier1.PrintInfo();
-            testSoldier2.PrintInfo();
+            testSoldier1.PrintInfo(true);
+            testSoldier2.PrintInfo(true);
 
             Console.WriteLine();
             testSoldier1.Attack(testSoldier2);
@@ -46,7 +45,7 @@ namespace Functions.OOP.War
         {
             List<Soldier> soldiersResult = new List<Soldier>();
 
-            for(int i = 0; i< size; i++)
+            for (int i = 0; i < size; i++)
             {
                 soldiersResult.Add(CreateRandomSoldier());
             }
@@ -109,29 +108,6 @@ namespace Functions.OOP.War
             set => _statsValues[SoldierStats.Health] = value;
         }
 
-        public virtual void PrintInfo()
-        {
-            Console.WriteLine();
-            Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
-
-            foreach (var stat in _statsValues)
-            {
-                string statName;
-                string statTranslation;
-
-                if (_statsTranslation.TryGetValue(stat.Key, out statTranslation))
-                {
-                    statName = statTranslation;
-                }
-                else
-                {
-                    statName = stat.Key.ToString();
-                }
-
-                Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
-            }
-        }
-
         public virtual void Attack(Soldier enemy, float damage = 0)
         {
             if (damage == 0)
@@ -161,6 +137,36 @@ namespace Functions.OOP.War
             if (Health < 0)
             {
                 Health = 0;
+            }
+        }
+
+        public virtual void PrintInfo(bool isFullInfo = false)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
+
+            if (isFullInfo == false)
+            {
+                Console.WriteLine($"Здоровье - {Health}");
+            }
+            else
+            {
+                foreach (var stat in _statsValues)
+                {
+                    string statName;
+                    string statTranslation;
+
+                    if (_statsTranslation.TryGetValue(stat.Key, out statTranslation))
+                    {
+                        statName = statTranslation;
+                    }
+                    else
+                    {
+                        statName = stat.Key.ToString();
+                    }
+
+                    Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
+                }
             }
         }
 
@@ -242,12 +248,44 @@ namespace Functions.OOP.War
             base.Attack(enemy, damage);
         }
 
-        public override void PrintInfo()
+        public override void PrintInfo(bool isFullInfo = false)
         {
-            base.PrintInfo();
+            base.PrintInfo(isFullInfo);
 
-            Console.WriteLine($"Множитель урона: {_powerMultiplier}");
+            if (isFullInfo)
+            {
+                Console.WriteLine($"Параметр: Множитель урона. {_powerMultiplier}");
+            }
         }
+    }
+
+    internal class MultipleUniqueSoldier : Soldier, IMultiAtackable
+    {
+        private bool _isMultipleRepeat;
+
+        public MultipleUniqueSoldier(int id) : base(id)
+        {
+            Type = "Атакует группу, единожды";
+        }
+
+        public bool IsMultipleRepeat { get => _isMultipleRepeat; }
+
+        public override void Attack(Soldier enemy, float damage = 0)
+        {
+            base.Attack(enemy, damage);
+        }
+
+        public void AttackMultiple(List<Soldier> list)
+        {
+
+        }
+    }
+
+    internal interface IMultiAtackable
+    {
+        bool IsMultipleRepeat { get; }
+
+        void AttackMultiple(List<Soldier> list);
     }
 
     enum SoldierStats
