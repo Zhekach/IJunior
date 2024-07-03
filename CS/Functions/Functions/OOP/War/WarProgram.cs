@@ -1,27 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-///TODO add IMultiAtackable for soldiers
-///!!!!!Добавить солдат с атакой нескольких врагов!!!!
-///Сначала без повторения
-///Тест
-///
-/// Добавить метод удаления мертвых солдат после получения урона отрядом
-/// 
-///
-/// Потом с повторением
-///!!!!!Прописать их в рандомной генерации!!!!!
-///И всё заново
-///
-///
 
 namespace Functions.OOP.War
 {
     internal class WarProgram
     {
-        private Squad squad1;
-        private Squad squad2;
+        private Squad _squad1;
+        private Squad _squad2;
 
         public static void Main()
         {
@@ -39,32 +25,32 @@ namespace Functions.OOP.War
 
         private void InicializeSquads()
         {
-            squad1 = new Squad(3, "Остолопы");
-            squad2 = new Squad(2, "Бронтозавры");
+            _squad1 = new Squad(3, "Остолопы");
+            _squad2 = new Squad(2, "Бронтозавры");
 
-            squad1.PrintInfo(true);
+            _squad1.PrintInfo(true);
             Console.WriteLine();
 
-            squad2.PrintInfo(true);
+            _squad2.PrintInfo(true);
             Console.WriteLine();
         }
 
         private void StartDeathBattle()
         {
             int roundCounter = 1;
-            while (squad1.HasSurvivor() && squad2.HasSurvivor())
+            while (_squad1.HasSurvivor() && _squad2.HasSurvivor())
             {
                 Console.WriteLine($"=================" +
                     $"Раунд № {roundCounter}" +
                     $"=================");
 
-                squad1.Attack(squad2);
-                squad2.RemoveDeadSoldiers();
-                squad2.PrintInfo();
+                _squad1.Attack(_squad2);
+                _squad2.RemoveDeadSoldiers();
+                _squad2.PrintInfo();
 
-                squad2.Attack(squad1);
-                squad1.RemoveDeadSoldiers();
-                squad1.PrintInfo();
+                _squad2.Attack(_squad1);
+                _squad1.RemoveDeadSoldiers();
+                _squad1.PrintInfo();
 
                 roundCounter++;
             }
@@ -74,49 +60,43 @@ namespace Functions.OOP.War
         {
             Console.WriteLine("Победитель:");
 
-            if (squad1.HasSurvivor())
+            if (_squad1.HasSurvivor())
             {
-                Console.WriteLine(squad1.Name);
+                Console.WriteLine(_squad1.Name);
             }
             else
             {
-                Console.WriteLine(squad2.Name);
+                Console.WriteLine(_squad2.Name);
             }
         }
     }
 
     internal class Squad
     {
-        private int _size;
         private List<Soldier> _soldiers;
-        private Squad _enemies;
-        private string _name;
 
         public Squad(int size, string name)
         {
-            _size = size;
-            _soldiers = AddRandomSoldiers(_size);
-            _name = name;
+            _soldiers = AddRandomSoldiers(size);
+            Name = name;
         }
 
-        public string Name { get { return _name; } }
+        public string Name { get; private set; }
 
-        public IEnumerable<Soldier> Soldiers { get => _soldiers; }
+        public IEnumerable<Soldier> Soldiers => _soldiers; 
 
         public void Attack(Squad enemies)
         {
-            _enemies = enemies;
 
             foreach (Soldier soldier in _soldiers)
             {
-                if (soldier is IMultiAtackable)
+                if (soldier is IMultiAtackable multiAtackableSoldier)
                 {
-                    IMultiAtackable multiAtackableSoldier = (IMultiAtackable)soldier;
                     multiAtackableSoldier.AttackMultiple(enemies._soldiers);
                 }
                 else
                 {
-                    Soldier enemy = ChooseOneEnemy();
+                    Soldier enemy = ChooseOneEnemy(enemies);
 
                     if (enemy != null)
                     {
@@ -128,7 +108,7 @@ namespace Functions.OOP.War
 
         public void PrintInfo(bool isFullInfo = false)
         {
-            Console.WriteLine($"Отряд: {_name}\n" +
+            Console.WriteLine($"Отряд: {Name}\n" +
                 $"В составе:");
 
             foreach (Soldier soldier in _soldiers)
@@ -146,17 +126,17 @@ namespace Functions.OOP.War
 
         public void RemoveDeadSoldiers()
         {
-            _soldiers.RemoveAll(Soldier.IsDead);
+            _soldiers.RemoveAll(soldier => soldier.Health <= 0);
         }
 
         public bool HasSurvivor()
         {
-            return _soldiers.Exists(Soldier.IsAlive);
+            return _soldiers.Exists(soldier => soldier.Health > 0);
         }
 
-        private Soldier ChooseOneEnemy()
+        private Soldier ChooseOneEnemy(Squad enemies)
         {
-            foreach (Soldier enemy in _enemies.Soldiers)
+            foreach (Soldier enemy in enemies.Soldiers)
             {
                 if (enemy.Health > 0)
                 {
@@ -165,21 +145,6 @@ namespace Functions.OOP.War
             }
 
             return null;
-        }
-
-        private List<Soldier> ChooseSeveralEnemies()
-        {
-            List<Soldier> soldiers = new List<Soldier>();
-
-            foreach (Soldier enemy in _enemies.Soldiers)
-            {
-                if (enemy.Health > 0)
-                {
-                    soldiers.Add(enemy);
-                }
-            }
-
-            return soldiers;
         }
 
         private List<Soldier> AddRandomSoldiers(int size)
@@ -232,8 +197,7 @@ namespace Functions.OOP.War
         protected Dictionary<Enum, float> _statsValues;
         protected readonly Dictionary<Enum, float> _statsIncrements;
         protected readonly Dictionary<Enum, string> _statsTranslation;
-
-        private int StatsPoints = 9;
+        private int _statsPoints = 9;
 
         protected Soldier(int id)
         {
@@ -249,17 +213,7 @@ namespace Functions.OOP.War
         public float Health
         {
             get => _statsValues[SoldierStats.Health];
-            set => _statsValues[SoldierStats.Health] = value;
-        }
-
-        public static bool IsDead(Soldier soldier)
-        {
-            return soldier.Health <= 0;
-        }
-
-        public static bool IsAlive(Soldier soldier)
-        {
-            return soldier.Health > 0;
+            private set => _statsValues[SoldierStats.Health] = value;
         }
 
         public virtual void Attack(Soldier enemy, float damage = 0)
@@ -272,6 +226,35 @@ namespace Functions.OOP.War
             Console.WriteLine($"{Type}{ID}: Пытается нанести {damage} урона");
 
             enemy.TakeDamage(damage);
+        }
+
+        public virtual void PrintInfo(bool isFullInfo = false)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
+
+            if (isFullInfo == false)
+            {
+                Console.WriteLine($"Здоровье - {Health}");
+            }
+            else
+            {
+                foreach (var stat in _statsValues)
+                {
+                    string statName;
+
+                    if (_statsTranslation.TryGetValue(stat.Key, out string statTranslation))
+                    {
+                        statName = statTranslation;
+                    }
+                    else
+                    {
+                        statName = stat.Key.ToString();
+                    }
+
+                    Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
+                }
+            }
         }
 
         protected virtual void TakeDamage(float damage)
@@ -291,36 +274,6 @@ namespace Functions.OOP.War
             if (Health < 0)
             {
                 Health = 0;
-            }
-        }
-
-        public virtual void PrintInfo(bool isFullInfo = false)
-        {
-            Console.WriteLine();
-            Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
-
-            if (isFullInfo == false)
-            {
-                Console.WriteLine($"Здоровье - {Health}");
-            }
-            else
-            {
-                foreach (var stat in _statsValues)
-                {
-                    string statName;
-                    string statTranslation;
-
-                    if (_statsTranslation.TryGetValue(stat.Key, out statTranslation))
-                    {
-                        statName = statTranslation;
-                    }
-                    else
-                    {
-                        statName = stat.Key.ToString();
-                    }
-
-                    Console.WriteLine($"Параметр: {statName}. Значение: {stat.Value}");
-                }
             }
         }
 
@@ -362,7 +315,7 @@ namespace Functions.OOP.War
 
         private void DistributeStats()
         {
-            while (StatsPoints > 0)
+            while (_statsPoints > 0)
             {
                 List<Enum> stats = new List<Enum>(_statsValues.Keys);
                 Enum currentStat = stats[Util.Random.Next(stats.Count)];
@@ -373,7 +326,7 @@ namespace Functions.OOP.War
                 currentStatValue += currentStatIncrement;
                 _statsValues[currentStat] = currentStatValue;
 
-                StatsPoints--;
+                _statsPoints--;
             }
         }
     }
