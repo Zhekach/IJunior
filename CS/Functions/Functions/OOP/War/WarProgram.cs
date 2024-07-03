@@ -38,6 +38,7 @@ namespace Functions.OOP.War
         private void StartDeathBattle()
         {
             int roundCounter = 1;
+
             while (_squad1.HasSurvivor() && _squad2.HasSurvivor())
             {
                 Console.WriteLine($"=================" +
@@ -164,7 +165,7 @@ namespace Functions.OOP.War
             Soldier soldierResult;
             List<SoldierTypes> soldierTypes = Enum.GetValues(typeof(SoldierTypes)).Cast<SoldierTypes>().ToList();
 
-            SoldierTypes randomSoldierType = soldierTypes[Util.Random.Next(soldierTypes.Count)];
+            SoldierTypes randomSoldierType = soldierTypes[Util.GetRandomInt(soldierTypes.Count)];
 
             switch (randomSoldierType)
             {
@@ -204,12 +205,12 @@ namespace Functions.OOP.War
             _statsValues = InitiaizeStatsValues();
             _statsIncrements = InitiaizeStatsIncrements();
             _statsTranslation = InitiaizeStatsTranslators();
-            this.DistributeStats();
-            ID = id;
+            DistributeStats();
+            Id = id;
         }
 
         public string Type { get; protected set; }
-        public int ID { get; protected set; }
+        public int Id { get; protected set; }
         public float Health
         {
             get => _statsValues[SoldierStats.Health];
@@ -223,7 +224,7 @@ namespace Functions.OOP.War
                 damage = _statsValues[SoldierStats.Power];
             }
 
-            Console.WriteLine($"{Type}{ID}: Пытается нанести {damage} урона");
+            Console.WriteLine($"{Type}{Id}: Пытается нанести {damage} урона");
 
             enemy.TakeDamage(damage);
         }
@@ -231,7 +232,7 @@ namespace Functions.OOP.War
         public virtual void PrintInfo(bool isFullInfo = false)
         {
             Console.WriteLine();
-            Console.WriteLine($"Солдат типа: {Type}, номер {ID}");
+            Console.WriteLine($"Солдат типа: {Type}, номер {Id}");
 
             if (isFullInfo == false)
             {
@@ -264,11 +265,11 @@ namespace Functions.OOP.War
                 float damageRecieved = damage - _statsValues[SoldierStats.Armor];
                 Health -= damageRecieved;
 
-                Console.WriteLine($"{Type}{ID}: Получено {damageRecieved} урона");
+                Console.WriteLine($"{Type}{Id}: Получено {damageRecieved} урона");
             }
             else
             {
-                Console.WriteLine($"{Type}{ID}: Урон не прошёл");
+                Console.WriteLine($"{Type}{Id}: Урон не прошёл");
             }
 
             if (Health < 0)
@@ -318,7 +319,7 @@ namespace Functions.OOP.War
             while (_statsPoints > 0)
             {
                 List<Enum> stats = new List<Enum>(_statsValues.Keys);
-                Enum currentStat = stats[Util.Random.Next(stats.Count)];
+                Enum currentStat = stats[Util.GetRandomInt(stats.Count)];
 
                 float currentStatValue = _statsValues[currentStat];
                 float currentStatIncrement = _statsIncrements[currentStat];
@@ -443,6 +444,11 @@ namespace Functions.OOP.War
 
     internal class Util
     {
-        public static Random Random = new Random();
+        private static Random Random = new Random();
+
+        public static int GetRandomInt(int maxValue)
+        {
+            return Random.Next(maxValue);
+        }
     }
 }
