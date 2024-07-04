@@ -9,7 +9,7 @@ namespace Functions.OOP.War
         private Squad _squad1;
         private Squad _squad2;
 
-        public static void Main()
+        public static void Main1()
         {
             WarProgram war = new WarProgram();
 

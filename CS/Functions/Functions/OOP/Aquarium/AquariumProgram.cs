@@ -8,9 +8,23 @@ namespace Functions.OOP.Aquarium
 {
     internal class AquariumProgram
     {
-        public void Main()
+        public static void Main()
         {
-            
+            Aquarium aqua = new Aquarium();
+            aqua.AddFish();
+            aqua.AddFish();
+            aqua.AddFish();
+            aqua.AddFish();
+            aqua.PrintInfo();
+
+            for (int i = 0; i < 50; i++)
+            {
+                aqua.TestIteration();
+                aqua.PrintInfo();
+
+                Console.WriteLine($"======{aqua.CurrentIteration}=====");
+            }
+
         }
     }
 
@@ -19,14 +33,23 @@ namespace Functions.OOP.Aquarium
         private List<Fish> _fishes;
         private int _iterationTimeMillis;
         private int _currentFishId;
-        private int _currentIteration;
 
         public Aquarium()
         {
             _fishes = new List<Fish>();
             _iterationTimeMillis = 1000;
             _currentFishId = 0;
-            _currentIteration = 0;
+            CurrentIteration = 0;
+        }
+
+        public int CurrentIteration { get; private set; }
+
+        /// <summary>
+        /// Test
+        /// </summary>
+        public void TestIteration()
+        {
+            ReleaseIteration();
         }
 
         public void AddFish()
@@ -54,6 +77,8 @@ namespace Functions.OOP.Aquarium
             {
                 fish.OnIteration();
             }
+
+            CurrentIteration++;
         }
     }
 
@@ -69,6 +94,8 @@ namespace Functions.OOP.Aquarium
             Id = id;
             IsDead = false;
             Age = 0f;
+            OnIteration += IncrementAge;
+            OnIteration += CheckDead;
         }
 
         public int Id { get; private set; }
