@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Functions.OOP.Aquarium
 {
     internal class AquariumProgram
     {
-        public static void Main()
+        static void Main()
         {
             Aquarium aqua = new Aquarium();
             aqua.AddFish();
@@ -17,14 +17,9 @@ namespace Functions.OOP.Aquarium
             aqua.AddFish();
             aqua.PrintInfo();
 
-            for (int i = 0; i < 50; i++)
-            {
-                aqua.TestIteration();
-                aqua.PrintInfo();
+            aqua.Run();
 
-                Console.WriteLine($"======{aqua.CurrentIteration}=====");
-            }
-
+            Console.ReadKey();
         }
     }
 
@@ -38,18 +33,20 @@ namespace Functions.OOP.Aquarium
         {
             _fishes = new List<Fish>();
             _iterationTimeMillis = 1000;
-            _currentFishId = 0;
-            CurrentIteration = 0;
+            _currentFishId = 1;
+            CurrentIteration = 1;
         }
 
         public int CurrentIteration { get; private set; }
 
-        /// <summary>
-        /// Test
-        /// </summary>
-        public void TestIteration()
+        public void Test()
         {
-            ReleaseIteration();
+            Console.WriteLine("sdfsdf");
+        }
+        public void Run()
+        {
+            TimerCallback tm = new TimerCallback(ReleaseIteration);
+            Timer timer = new Timer(tm, null, 0, 2000);
         }
 
         public void AddFish()
@@ -65,13 +62,15 @@ namespace Functions.OOP.Aquarium
 
         public void PrintInfo()
         {
+            Console.WriteLine($"======{CurrentIteration}=====");
+
             foreach (Fish fish in _fishes)
             {
                 fish.PrintInfo();
             }
         }
 
-        private void ReleaseIteration()
+        private void ReleaseIteration(object obj)
         {
             foreach (Fish fish in _fishes)
             {
@@ -79,6 +78,8 @@ namespace Functions.OOP.Aquarium
             }
 
             CurrentIteration++;
+
+            PrintInfo();
         }
     }
 
