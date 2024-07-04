@@ -10,7 +10,7 @@ namespace Functions.OOP.Aquarium
     {
         public void Main()
         {
-
+            
         }
     }
 
@@ -18,14 +18,43 @@ namespace Functions.OOP.Aquarium
     {
         private List<Fish> _fishes;
         private int _iterationTimeMillis;
+        private int _currentFishId;
+        private int _currentIteration;
 
         public Aquarium()
         {
             _fishes = new List<Fish>();
             _iterationTimeMillis = 1000;
+            _currentFishId = 0;
+            _currentIteration = 0;
         }
 
+        public void AddFish()
+        {
+            _fishes.Add(new Fish(_currentFishId));
+            _currentFishId++;
+        }
 
+        public void RemoveFish()
+        {
+            _fishes.RemoveAt(Util.GetRandomInt(_fishes.Count()));
+        }
+
+        public void PrintInfo()
+        {
+            foreach (Fish fish in _fishes)
+            {
+                fish.PrintInfo();
+            }
+        }
+
+        private void ReleaseIteration()
+        {
+            foreach (Fish fish in _fishes)
+            {
+                fish.OnIteration();
+            }
+        }
     }
 
     internal class Fish
@@ -45,8 +74,10 @@ namespace Functions.OOP.Aquarium
         public int Id { get; private set; }
         public bool IsDead { get; private set; }
         public float Age { get; private set; }
+        public IterationReaction OnIteration { get; private set; }
 
-        delegate void OnIteration();
+
+        public delegate void IterationReaction();
 
         public void PrintInfo()
         {
