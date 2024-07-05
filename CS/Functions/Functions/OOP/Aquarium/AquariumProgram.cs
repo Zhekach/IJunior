@@ -7,35 +7,36 @@ namespace Functions.OOP.Aquarium
 {
     internal class AquariumProgram
     {
-        private static bool s_isUserExited = false;
-        private static Aquarium s_aqua;
+        private const ConsoleKey AddFishKey = ConsoleKey.A;
+        private const ConsoleKey RemoveFishKey = ConsoleKey.D;
+        private const ConsoleKey ExitKey = ConsoleKey.E;
         static void Main()
         {
-            s_aqua = new Aquarium();
-            s_aqua.Run();
+            bool isUserExited = false;
+            Aquarium aqua = new Aquarium();
 
-            while (s_isUserExited == false)
+            aqua.Run();
+
+            while (isUserExited == false)
             {
-                ManageAqua();
+                ManageAqua(aqua, ref isUserExited);
             }
         }
 
-        private static void ManageAqua()
+        private static void ManageAqua(Aquarium aqua, ref bool isUserExited)
         {
-            ConsoleKeyInfo pressedKey;
-
-            pressedKey = Console.ReadKey();
+            var pressedKey = Console.ReadKey();
 
             switch (pressedKey.Key)
             {
-                case ConsoleKey.A:
-                    s_aqua.AddFish();
+                case AddFishKey:
+                    aqua.AddFish();
                     break;
-                case ConsoleKey.D:
-                    s_aqua.RemoveFish();
+                case RemoveFishKey:
+                    aqua.RemoveFish();
                     break;
-                case ConsoleKey.E:
-                    s_isUserExited = true;
+                case ExitKey:
+                    isUserExited = true;
                     break;
                 default:
                     break;
@@ -44,23 +45,15 @@ namespace Functions.OOP.Aquarium
     }
     internal class Aquarium
     {
-        private List<Fish> _fishes;
-        private readonly int _iterationTimeMillis;
-        private int _currentFishId;
-        private int _currentIteration;
-
-        public Aquarium()
-        {
-            _fishes = new List<Fish>();
-            _iterationTimeMillis = 1000;
-            _currentFishId = 1;
-            _currentIteration = 1;
-        }
+        private List<Fish> _fishes = new List<Fish>();
+        private readonly int _iterationTimeMillis = 1000;
+        private int _currentFishId = 1;
+        private int _currentIteration = 1;
 
         public void Run()
         {
-            TimerCallback tm = new TimerCallback(ReleaseIteration);
-            Timer timer = new Timer(tm, null, 0, _iterationTimeMillis);
+            TimerCallback TimerCallback = new TimerCallback(ReleaseIteration);
+            Timer timer = new Timer(TimerCallback, null, 0, _iterationTimeMillis);
         }
 
         public void AddFish()
@@ -110,19 +103,16 @@ namespace Functions.OOP.Aquarium
 
     internal class Fish
     {
-        private readonly float _ageIncrement;
-        private readonly int _chanceToLive;
+        private readonly float _ageIncrement = 0.1f;
+        private readonly int _chanceToLive = 95;
         private int _id;
-        private bool _isDead;
-        private float _age;
+        private bool _isDead = false;
+        private float _age = 0f;
 
         public Fish(int id)
         {
-            _ageIncrement = 0.1f;
-            _chanceToLive = 95;
             _id = id;
-            _isDead = false;
-            _age = 0f;
+
             OnIteration += IncrementAge;
             OnIteration += CheckDead;
         }
