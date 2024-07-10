@@ -7,23 +7,44 @@ namespace Functions.OOP.Aquarium
 {
     internal class AquariumProgram
     {
+        static void Main()
+        {
+            AquariumController controller = new AquariumController();
+
+            controller.ControlAqurium();
+        }
+    }
+
+    internal class AquariumController
+    {
         private const ConsoleKey AddFishKey = ConsoleKey.A;
         private const ConsoleKey RemoveFishKey = ConsoleKey.D;
         private const ConsoleKey ExitKey = ConsoleKey.E;
-        static void Main()
+        private readonly string _userInterfaceDescription =
+            "Для управления аквариумом нажмите:\n" +
+            $"{AddFishKey} - Добавить рыбку\n" +
+            $"{RemoveFishKey} - Удалить случайную рыбку\n" +
+            $"{ExitKey} - Выход из программы\n";
+
+        private bool _isUserExited;
+        private Aquarium _aqua;
+
+        public AquariumController()
         {
-            bool isUserExited = false;
-            Aquarium aqua = new Aquarium();
+            _aqua = new Aquarium(_userInterfaceDescription);
+        }
 
-            aqua.Run();
+        public void ControlAqurium()
+        {
+            _aqua.Run();
 
-            while (isUserExited == false)
+            while (_isUserExited == false)
             {
-                ManageAqua(aqua, ref isUserExited);
+                ManageAqua(_aqua);
             }
         }
 
-        private static void ManageAqua(Aquarium aqua, ref bool isUserExited)
+        private void ManageAqua(Aquarium aqua)
         {
             var pressedKey = Console.ReadKey();
 
@@ -32,28 +53,38 @@ namespace Functions.OOP.Aquarium
                 case AddFishKey:
                     aqua.AddFish();
                     break;
+
                 case RemoveFishKey:
                     aqua.RemoveFish();
                     break;
+
                 case ExitKey:
-                    isUserExited = true;
+                    _isUserExited = true;
                     break;
+
                 default:
                     break;
             }
         }
     }
+
     internal class Aquarium
     {
-        private List<Fish> _fishes = new List<Fish>();
-        private readonly int _iterationTimeMillis = 1000;
+        private readonly int _iterationTimeMilliseconds = 1000;
+        private readonly string _userInterfaceDescription;
+        private readonly List<Fish> _fishes = new List<Fish>();
         private int _currentFishId = 1;
         private int _currentIteration = 1;
 
+        public Aquarium(string userInterfaceDescription)
+        {
+            _userInterfaceDescription = userInterfaceDescription;
+        }
+
         public void Run()
         {
-            TimerCallback TimerCallback = new TimerCallback(ReleaseIteration);
-            Timer timer = new Timer(TimerCallback, null, 0, _iterationTimeMillis);
+            TimerCallback timerCallback = new TimerCallback(ReleaseIteration);
+            Timer timer = new Timer(timerCallback, null, 0, _iterationTimeMilliseconds);
         }
 
         public void AddFish()
@@ -64,7 +95,7 @@ namespace Functions.OOP.Aquarium
 
         public void RemoveFish()
         {
-            _fishes.RemoveAt(Util.GetRandomInt(_fishes.Count()));
+            _fishes.RemoveAt(RandomUtility.GetRandomInt(_fishes.Count()));
         }
 
         public void PrintInfo()
@@ -79,10 +110,7 @@ namespace Functions.OOP.Aquarium
 
         public void PrintUserGuide()
         {
-            Console.WriteLine("Для управления аквариумом нажмите:\n" +
-                "А - Добавить рыбку\n" +
-                "D - Удалить случайную рыбку\n" +
-                "Е - Выход из программы\n");
+            Console.WriteLine(_userInterfaceDescription);
         }
 
         private void ReleaseIteration(object obj)
@@ -103,18 +131,22 @@ namespace Functions.OOP.Aquarium
 
     internal class Fish
     {
-        private readonly float _ageIncrement = 0.1f;
-        private readonly int _chanceToLive = 95;
-        private int _id;
-        private bool _isDead = false;
-        private float _age = 0f;
+        private const float AgeIncrement = 0.1f;
+        private const int ChanceToLive = 95;
+        private const string AliveText = "жива";
+        private const string DeadText = "не очень";
+
+        private readonly int _id;
+        private string _statusText = AliveText;
+        private bool _isDead;
+        private float _age;
 
         public Fish(int id)
         {
             _id = id;
 
             OnIteration += IncrementAge;
-            OnIteration += CheckDead;
+            OnIteration += TryDead;
         }
 
         public IterationReaction OnIteration { get; private set; }
@@ -123,13 +155,12 @@ namespace Functions.OOP.Aquarium
 
         public void PrintInfo()
         {
-            string aliveText = "жива";
-            string deadText = "не очень";
-            string statusText = aliveText;
+            if (_isDead)
+            {
+                _statusText = DeadText;
+            }
 
-            if (_isDead) { statusText = deadText; }
-
-            Console.WriteLine($"Рыбка под номером {_id}: {statusText}." +
+            Console.WriteLine($"Рыбка под номером {_id}: {_statusText}." +
                 $" Ей {_age} рыбьих лет");
         }
 
@@ -137,20 +168,20 @@ namespace Functions.OOP.Aquarium
         {
             if (_isDead == false)
             {
-                _age += _ageIncrement;
+                _age += AgeIncrement;
             }
         }
 
-        private void CheckDead()
+        private void TryDead()
         {
-            if (Util.GetRandomInt(100) > _chanceToLive)
+            if (RandomUtility.GetRandomInt(100) > ChanceToLive)
             {
                 _isDead = true;
             }
         }
     }
 
-    internal class Util
+    internal class RandomUtility
     {
         private static readonly Random s_random = new Random();
 

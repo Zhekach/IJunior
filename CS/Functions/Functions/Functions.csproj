@@ -67,7 +67,6 @@
     <Compile Include="Collections\QueueInShop.cs" />
     <Compile Include="KanzasShuffle.cs" />
     <Compile Include="OOP\Aquarium\AquariumProgram.cs" />
-    <Compile Include="OOP\Aquarium\Test.cs" />
     <Compile Include="OOP\CasinoProgram\Casino.cs" />
     <Compile Include="OOP\GladiatorFights\GladiatorFights.cs" />
     <Compile Include="OOP\Library\Library.cs" />
@@ -78,6 +77,7 @@
     <Compile Include="OOP\War\WarProgram.cs" />
     <Compile Include="OOP\WorkWithClasses.cs" />
     <Compile Include="OOP\WorkWithProperties.cs" />
+    <Compile Include="OOP\Zoo\ZooProgramm.cs" />
     <Compile Include="PacMan.cs" />
     <Compile Include="PersonnelRecords.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
