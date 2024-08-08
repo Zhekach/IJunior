@@ -9,10 +9,47 @@ namespace Functions.OOP.Zoo
     {
         static void Main()
         {
-            Animal newAnimal = new Animal();
-            newAnimal.PrintInfo();
+            Cage cage = new Cage(5, 1);
+            cage.PrintInfo();
         }
         
+    }
+
+    internal class Cage
+    {
+        private readonly List<Animal> _animals = new List<Animal>();
+        
+        public int Id { get; private set; }
+
+        public Cage(int animalsCount, int id)
+        {
+            _animals.AddRange(GenerateAnimals(animalsCount));
+            Id = id;
+        }
+        
+        public void PrintInfo()
+        {
+            Console.WriteLine($"В вольере № {Id} содержатся:");
+            
+            foreach (Animal animal in _animals)
+            {
+                animal.PrintInfo();
+            }
+
+            Console.WriteLine();
+        }
+
+        private static List<Animal> GenerateAnimals(int count)
+        {
+            List<Animal> result = new List<Animal>();
+            
+            for (int i = 0; i < count; i++)
+            {
+                result.Add(new Animal());    
+            }
+
+            return result;
+        }
     }
 
     internal class Animal
@@ -29,27 +66,27 @@ namespace Functions.OOP.Zoo
             {"Собака", "Гав"},
         };
 
-        private static readonly Dictionary<AnimalGender, string> S_genders = new Dictionary<AnimalGender, string>()
+        private static readonly Dictionary<AnimalGender, string> s_genders = new Dictionary<AnimalGender, string>()
         {
             { AnimalGender.Male, "Самец" },
             { AnimalGender.Female, "Самка" },
             { AnimalGender.Other, "Пока непонятно" }
         };
 
-        public readonly string Type;
-        public readonly string Voice;
-        public readonly string Gender;
+        private readonly string _type;
+        private readonly string _voice;
+        private readonly string _gender;
 
         public Animal()
         {
-            Type = GenerateRandomType();
-            Voice = GetVoice(Type);
-            Gender = GenerateRandomGender();
+            _type = GenerateRandomType();
+            _voice = GetVoice(_type);
+            _gender = GenerateRandomGender();
         }
 
         public void PrintInfo()
         {
-            Console.WriteLine($"Я - {Type}, мой звук - {Voice}, мой пол - {Gender}");
+            Console.WriteLine($"Я - {_type}, мой звук - {_voice}, мой пол - {_gender}");
         }
         
         private string GetVoice(string type)
@@ -60,20 +97,17 @@ namespace Functions.OOP.Zoo
         
         private string GenerateRandomType()
         {
-            string result;
-
             int index = RandomUtility.GetRandomInt(s_typesVoices.Count());
-            result = s_typesVoices.Keys.ElementAt(index);
+            var result = s_typesVoices.Keys.ElementAt(index);
 
             return result;
         }
         
         private static string GenerateRandomGender()
         {
-            string result;
             Array genders = Enum.GetValues(typeof(AnimalGender));
             AnimalGender gender = (AnimalGender)genders.GetValue(RandomUtility.GetRandomInt(genders.Length));
-            S_genders.TryGetValue(gender, out result);
+            s_genders.TryGetValue(gender, out string result);
 
             return result;
         }
