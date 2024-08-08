@@ -77,7 +77,7 @@
     <Compile Include="OOP\War\WarProgram.cs" />
     <Compile Include="OOP\WorkWithClasses.cs" />
     <Compile Include="OOP\WorkWithProperties.cs" />
-    <Compile Include="OOP\Zoo\ZooProgramm.cs" />
+    <Compile Include="OOP\Zoo\ZooProgram.cs" />
     <Compile Include="PacMan.cs" />
     <Compile Include="PersonnelRecords.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

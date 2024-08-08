@@ -7,7 +7,7 @@ namespace Functions.OOP.Aquarium
 {
     internal class AquariumProgram
     {
-        static void Main()
+        static void Main1()
         {
             AquariumController controller = new AquariumController();
 
