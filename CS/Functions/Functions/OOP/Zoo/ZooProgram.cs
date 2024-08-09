@@ -7,29 +7,117 @@ namespace Functions.OOP.Zoo
 {
     internal class ZooProgram
     {
-        static void Main()
+        private static void Main()
         {
-            Cage cage = new Cage(5, 1);
-            cage.PrintInfo();
+            ZooController zooController = new ZooController();
+            zooController.StartControl();
         }
         
+    }
+
+    internal class ZooController
+    {
+        private const ConsoleKey ExitKey = ConsoleKey.Q;
+        private const ConsoleKey EnterKey = ConsoleKey.Enter;
+
+        private readonly Zoo _zoo;
+        private readonly string _mainMenu =
+            "Добро пожаловать в зоопарк\n" +
+            $"{EnterKey} - для входа в зоопарк\n" +
+            $"{ExitKey} - для выхода\n";
+
+        private string _chooseCageMenu =
+            "Введите номер вольера в диапазоне:" +
+            $"{_zoo.CagesCount}";
+
+        private bool _isUserExited;
+        
+
+        public ZooController()
+        {
+            _zoo = new Zoo();
+        }
+
+        public void StartControl()
+        {
+            while (_isUserExited == false)
+            {
+                ManageZoo();
+                Console.Clear();
+            }
+            
+            Console.WriteLine("Всего доброго!");
+        }
+
+        private void ManageZoo()
+        {
+            Console.WriteLine(_mainMenu);
+            ConsoleKeyInfo pressedKey = Console.ReadKey();
+
+            switch (pressedKey.Key)
+            {
+                case(EnterKey):
+                    ChooseCage();
+                    break;
+                case(ExitKey):
+                    _isUserExited = true;
+                    break;
+            }
+        }
+
+        private void ChooseCage()
+        {
+            Console.WriteLine("Введит");
+        }
+    }
+
+    internal class Zoo
+    {
+        private static int s_cagesCount = 4;
+        private const int AnimalsInCageMaxCount = 5;
+        
+        private readonly List<Cage> _cages = new List<Cage>();
+
+        public int CagesCount => _cages.Count;
+
+        public Zoo()
+        {
+            GenerateCages(s_cagesCount);
+        }
+
+        public void PrintInfo()
+        {
+            foreach (Cage cage in _cages)
+            {
+                cage.PrintInfo();
+            }
+        }
+
+        private void GenerateCages(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                int animalsCount = Utility.GetRandomInt(AnimalsInCageMaxCount);
+                Cage newCage = new Cage(animalsCount, i);
+                _cages.Add(newCage);
+            }
+        }
     }
 
     internal class Cage
     {
         private readonly List<Animal> _animals = new List<Animal>();
-        
-        public int Id { get; private set; }
+        private readonly int _id;
 
         public Cage(int animalsCount, int id)
         {
             _animals.AddRange(GenerateAnimals(animalsCount));
-            Id = id;
+            _id = id;
         }
         
         public void PrintInfo()
         {
-            Console.WriteLine($"В вольере № {Id} содержатся:");
+            Console.WriteLine($"В вольере № {_id} содержатся:");
             
             foreach (Animal animal in _animals)
             {
@@ -97,7 +185,7 @@ namespace Functions.OOP.Zoo
         
         private string GenerateRandomType()
         {
-            int index = RandomUtility.GetRandomInt(s_typesVoices.Count());
+            int index = Utility.GetRandomInt(s_typesVoices.Count());
             var result = s_typesVoices.Keys.ElementAt(index);
 
             return result;
@@ -106,7 +194,7 @@ namespace Functions.OOP.Zoo
         private static string GenerateRandomGender()
         {
             Array genders = Enum.GetValues(typeof(AnimalGender));
-            AnimalGender gender = (AnimalGender)genders.GetValue(RandomUtility.GetRandomInt(genders.Length));
+            AnimalGender gender = (AnimalGender)genders.GetValue(Utility.GetRandomInt(genders.Length));
             s_genders.TryGetValue(gender, out string result);
 
             return result;
@@ -120,13 +208,40 @@ namespace Functions.OOP.Zoo
         Other
     }
 
-    internal static class RandomUtility
+    internal static class Utility
     {
         private static readonly Random s_random = new Random();
 
         public static int GetRandomInt (int maxValue)
         {
             return s_random.Next (maxValue);
+        }
+        
+        public static int ReadInt()
+        {
+            bool isIntEntered = false;
+            int parsedInt = 0;
+
+            while (isIntEntered == false)
+            {
+                string enteredString;
+
+                Console.WriteLine("Введите целое число:");
+                enteredString = Console.ReadLine();
+
+                isIntEntered = int.TryParse(enteredString, out parsedInt);
+
+                if (isIntEntered)
+                {
+                    Console.WriteLine($"Введенное число распознанно, это: {parsedInt}");
+                }
+                else
+                {
+                    Console.WriteLine("Вы ввели неверно, попробуйте ещё раз)\n");
+                }
+            }
+
+            return parsedInt;
         }
     }
 }
