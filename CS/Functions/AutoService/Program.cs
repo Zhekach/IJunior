@@ -2,15 +2,155 @@
 {
     private static void Main()
     {
-        AutoServiceFactory autoServiceFactory = new AutoServiceFactory();
-        AutoService autoService = autoServiceFactory.GenerateAutoService();
-        autoService.PrintInfo();
+        // AutoServiceFactory autoServiceFactory = new AutoServiceFactory();
+        // AutoService autoService = autoServiceFactory.GenerateAutoService();
+        // autoService.PrintInfo();\
+
+        Application application = new Application();
+        application.Run();
     }
 }
 
-internal class PlayerInput
+internal class Application
 {
-    
+    private readonly AutoService _autoService;
+    private readonly ConsoleUi _consoleUi;
+    private const ConsoleKey AgryKey = ConsoleKey.Y;
+    private const ConsoleKey RefuseKey = ConsoleKey.N;
+    private const ConsoleKey ExitKey = ConsoleKey.Q;
+
+    public Application()
+    {
+        AutoServiceFactory autoServiceFactory = new AutoServiceFactory();
+
+        _autoService = autoServiceFactory.GenerateAutoService();
+        _consoleUi = new ConsoleUi(_autoService, AgryKey, RefuseKey, ExitKey);
+    }
+
+    public void Run()
+    {
+        bool isUserExited = false;
+        while (isUserExited == false && _autoService.HasCarsInQueue())
+        {
+            _consoleUi.ShowMainMenu();
+            ConsoleKeyInfo pressedKey = Console.ReadKey();
+
+            switch (pressedKey.Key)
+            {
+                case AgryKey:
+                    _autoService.RepairCar();
+                    ChooseDetail();
+                    Console.Clear();
+                    break;
+                case RefuseKey:
+                    _autoService.RefuseCar();
+                    _consoleUi.ShowWaitingMenu();
+                    Console.Clear();
+                    break;
+                case ExitKey:
+                    isUserExited = true;
+                    break;
+            }
+
+            Console.Clear();
+        }
+    }
+
+    private void ChooseDetail()
+    {
+        Car? car = _autoService.CurrentCar;
+
+        if (car == null)
+        {
+            return;
+        }
+
+        while (_autoService.HasCurrentCar() && _autoService.HasDetails())
+        {
+            int index = _consoleUi.ShowChooseDetailMenu();
+
+            switch (index)
+            {
+                case -1:
+                    break;
+                case 0:
+                    _autoService.RefuseCar();
+                    break;
+                default:
+                    Detail detail = car.Details.ElementAt(index - 1);
+                    _autoService.TryToRepairDetail(detail);
+                    _consoleUi.ShowWaitingMenu();
+                    break;
+            }
+        }
+    }
+}
+
+internal class ConsoleUi
+{
+    private readonly AutoService _autoService;
+    private readonly ConsoleKey _agryKey;
+    private readonly ConsoleKey _refuseKey;
+    private readonly ConsoleKey _exitKey;
+
+    public ConsoleUi(AutoService autoService,
+        ConsoleKey agryKey, ConsoleKey refuseKey, ConsoleKey exitKey)
+    {
+        _autoService = autoService;
+        _agryKey = agryKey;
+        _refuseKey = refuseKey;
+        _exitKey = exitKey;
+    }
+
+    public void ShowMainMenu()
+    {
+        Console.Clear();
+        _autoService.PrintInfo();
+
+        Console.WriteLine("Выберите действие:\n" +
+                          $"{_agryKey} - начать ремонт\n" +
+                          $"{_refuseKey} - отказаться от ремонта\n" +
+                          $"{_exitKey} - выход\n");
+    }
+
+    public void ShowWaitingMenu()
+    {
+        Console.WriteLine("Нажмите любую клавишу для продолжения.");
+        Console.ReadKey();
+    }
+
+    public int ShowChooseDetailMenu()
+    {
+        Console.Clear();
+
+        Car? car = _autoService.CurrentCar;
+
+        if (car == null)
+        {
+            Console.WriteLine("Ошибка, нет машины в ремонте.");
+            return -1;
+        }
+
+        Console.WriteLine("Выберите деталь для ремонта:");
+
+        int index = 1;
+
+        foreach (Detail detail in car.Details)
+        {
+            if (detail.IsBroken)
+            {
+                Console.WriteLine($"{index} - {detail.Type}.");
+            }
+            
+            index++;
+        }
+
+        Console.WriteLine("Для отказа от ремонта введите \"0\".");
+
+        int result = Utility.ReadInt();
+
+        return result;
+    }
 }
 
 internal class AutoService
@@ -31,6 +171,11 @@ internal class AutoService
         _mechanic = new Mechanic(details);
     }
 
+    public bool HasCarsInQueue() => _cars.Count > 0;
+    public bool HasCurrentCar() => _currentCar != null;
+    public bool HasDetails() => _details.Count > 0;
+    public Car? CurrentCar => _currentCar;
+
     public void RepairCar()
     {
         if (_currentCar == null && _cars.Count > 0)
@@ -39,7 +184,7 @@ internal class AutoService
         }
         else
         {
-            Console.WriteLine("Нет автомобилей в очереди.");   
+            Console.WriteLine("Нет автомобилей в очереди.");
         }
     }
 
@@ -65,12 +210,12 @@ internal class AutoService
         {
             return false;
         }
-        
+
         bool result = _mechanic.TryRepairDetail(_currentCar, detail);
         int bonus = _appraiser.AppraiseDetailBonus(detail);
         _balance += bonus;
         Console.WriteLine($"Начислено {bonus} рублей за ремонт детали {detail.Type}.");
-        
+
         return result;
     }
 
@@ -80,10 +225,10 @@ internal class AutoService
 
         Console.WriteLine($"Автомобилей в очереди: {_cars.Count}");
         Console.WriteLine("Следующий автомобиль:");
-        
+
         Car car = _cars.Peek();
         car.PrintInfo();
-        
+
         Console.WriteLine("Список деталей:");
         foreach (var detail in _details)
         {
@@ -109,7 +254,7 @@ internal class Appraiser
     public int CalculateInProgressPenalty(Car car)
     {
         int penalty = 0;
-        
+
         foreach (var detail in car.Details)
         {
             if (detail.IsBroken)
@@ -117,7 +262,7 @@ internal class Appraiser
                 penalty += (int)(detail.Price * CoefficientDetailPenalty);
             }
         }
-        
+
         return penalty;
     }
 
@@ -159,7 +304,7 @@ internal class Mechanic
     {
         bool isDetailRepaired = false;
         Detail? newDetail = FindDetailToRepair(brokenDetail, _detailsInStock);
-        
+
         if (newDetail == null ||
             car.TryRepairDetail(newDetail) == false)
         {
@@ -191,8 +336,8 @@ internal class Mechanic
 
 internal class AutoServiceFactory
 {
-    private const int MinDetailsCount = 10;
-    private const int MaxDetailsCount = 20;
+    private const int MinDetailsCount = 20;
+    private const int MaxDetailsCount = 50;
     private const int MinBalance = 100;
     private const int MaxBalance = 5000;
     private const int MinCarsCount = 2;
