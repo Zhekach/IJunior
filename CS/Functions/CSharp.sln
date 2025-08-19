@@ -5,6 +5,10 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functions", "Functions\Functions.csproj", "{0E1EE421-0DC8-4C46-B935-8D815E157C48}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OOP", "OOP", "{32248C45-5A46-4939-877D-1B7DBA9D96FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoService", "AutoService\AutoService.csproj", "{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,11 +19,18 @@ Global
 		{0E1EE421-0DC8-4C46-B935-8D815E157C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E1EE421-0DC8-4C46-B935-8D815E157C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E1EE421-0DC8-4C46-B935-8D815E157C48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5DEA466E-03D3-424F-A942-4486A9531383}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114} = {32248C45-5A46-4939-877D-1B7DBA9D96FA}
 	EndGlobalSection
 EndGlobal
