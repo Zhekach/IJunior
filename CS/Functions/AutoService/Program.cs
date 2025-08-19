@@ -1,6 +1,6 @@
-﻿class Program
+﻿internal class Program
 {
-    static void Main(string[] args)
+    private static void Main()
     {
         AutoServiceFactory autoServiceFactory = new AutoServiceFactory();
         AutoService autoService = autoServiceFactory.GenerateAutoService();
@@ -15,8 +15,8 @@ internal class PlayerInput
 
 internal class AutoService
 {
-    private Queue<Car> _cars;
-    private List<Detail> _details;
+    private readonly Queue<Car> _cars;
+    private readonly List<Detail> _details;
     private int _balance;
     private Car? _currentCar;
 
@@ -174,7 +174,7 @@ internal class Mechanic
 
     private Detail? FindDetailToRepair(Detail brokenDetail, List<Detail> detailsInStock)
     {
-        Detail detailToRepair = null;
+        Detail? detailToRepair = null;
 
         foreach (var detail in detailsInStock)
         {
@@ -191,21 +191,21 @@ internal class Mechanic
 
 internal class AutoServiceFactory
 {
-    private const int minDetailsCount = 10;
-    private const int maxDetailsCount = 20;
-    private const int minBalance = 100;
-    private const int maxBalance = 5000;
-    private const int minCarsCount = 2;
-    private const int maxCarsCount = 4;
+    private const int MinDetailsCount = 10;
+    private const int MaxDetailsCount = 20;
+    private const int MinBalance = 100;
+    private const int MaxBalance = 5000;
+    private const int MinCarsCount = 2;
+    private const int MaxCarsCount = 4;
 
-    private DetailFactory _detailFactory = new DetailFactory();
-    private CarFactory _carFactory = new CarFactory();
+    private readonly DetailFactory _detailFactory = new DetailFactory();
+    private readonly CarFactory _carFactory = new CarFactory();
 
     public AutoService GenerateAutoService()
     {
-        int detailsCount = Utility.GetRandomInt(minDetailsCount, maxDetailsCount);
-        int balance = Utility.GetRandomInt(minBalance, maxBalance);
-        int carsCount = Utility.GetRandomInt(minCarsCount, maxCarsCount);
+        int detailsCount = Utility.GetRandomInt(MinDetailsCount, MaxDetailsCount);
+        int balance = Utility.GetRandomInt(MinBalance, MaxBalance);
+        int carsCount = Utility.GetRandomInt(MinCarsCount, MaxCarsCount);
 
         List<Detail> details = _detailFactory.GenerateRandomDetails(detailsCount);
         List<Car> cars = _carFactory.GenerateCars(carsCount);
@@ -216,9 +216,9 @@ internal class AutoServiceFactory
     }
 }
 
-class Car
+internal class Car
 {
-    private HashSet<Detail> _details;
+    private readonly HashSet<Detail> _details;
 
     public Car(HashSet<Detail> details)
     {
@@ -236,7 +236,7 @@ class Car
             return false;
         }
 
-        Detail brokenDetail = null;
+        Detail? brokenDetail = null;
 
         foreach (var detail in _details)
         {
@@ -277,7 +277,7 @@ class CarFactory
 {
     private const int MinBrokenDetails = 1;
 
-    private DetailFactory _detailFactory = new DetailFactory();
+    private readonly DetailFactory _detailFactory = new DetailFactory();
 
     public List<Car> GenerateCars(int count)
     {
@@ -418,7 +418,7 @@ internal static class Utility
 
         while (isIntEntered == false)
         {
-            string enteredString;
+            string? enteredString;
 
             Console.WriteLine("Введите целое число:");
             enteredString = Console.ReadLine();
