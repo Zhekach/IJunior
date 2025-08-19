@@ -2,10 +2,6 @@
 {
     private static void Main()
     {
-        // AutoServiceFactory autoServiceFactory = new AutoServiceFactory();
-        // AutoService autoService = autoServiceFactory.GenerateAutoService();
-        // autoService.PrintInfo();\
-
         Application application = new Application();
         application.Run();
     }
@@ -51,8 +47,6 @@ internal class Application
                     isUserExited = true;
                     break;
             }
-
-            Console.Clear();
         }
     }
 
@@ -141,7 +135,7 @@ internal class ConsoleUi
             {
                 Console.WriteLine($"{index} - {detail.Type}.");
             }
-            
+
             index++;
         }
 
@@ -200,23 +194,30 @@ internal class AutoService
         {
             int penalty = _appraiser.CalculateInProgressPenalty(_currentCar);
             _balance -= penalty;
+            _currentCar = null;
             Console.WriteLine($"Штраф за отказ от продолжения ремонта: {penalty} рублей.");
         }
     }
 
-    public bool TryToRepairDetail(Detail detail)
+    public bool TryToRepairDetail(Detail brokenDetail)
     {
-        if (_currentCar == null)
+        if (_currentCar == null || brokenDetail.IsBroken == false)
         {
             return false;
         }
 
-        bool result = _mechanic.TryRepairDetail(_currentCar, detail);
-        int bonus = _appraiser.AppraiseDetailBonus(detail);
+        bool result = _mechanic.TryRepairDetail(_currentCar, brokenDetail, out Detail? newDetail);
+        int bonus = _appraiser.AppraiseDetailBonus(brokenDetail);
         _balance += bonus;
-        Console.WriteLine($"Начислено {bonus} рублей за ремонт детали {detail.Type}.");
+        Console.WriteLine($"Начислено {bonus} рублей за ремонт детали {brokenDetail.Type}.");
 
-        return result;
+        if (_mechanic.CheckIsCarRepaired(_currentCar))
+        {
+            _currentCar = null;
+            Console.WriteLine("Ремонт машины завершен.");
+        }
+
+        return true;
     }
 
     public void PrintInfo()
@@ -300,13 +301,13 @@ internal class Mechanic
         return isCarRepaired;
     }
 
-    public bool TryRepairDetail(Car car, Detail brokenDetail)
+    public bool TryRepairDetail(Car car, Detail brokenDetail, out Detail? newDetail)
     {
         bool isDetailRepaired = false;
-        Detail? newDetail = FindDetailToRepair(brokenDetail, _detailsInStock);
+        newDetail = FindDetailToRepair(brokenDetail, _detailsInStock);
 
         if (newDetail == null ||
-            car.TryRepairDetail(newDetail) == false)
+            car.TryRepairDetail(brokenDetail, newDetail) == false)
         {
             return isDetailRepaired;
         }
@@ -372,24 +373,13 @@ internal class Car
 
     public IReadOnlyCollection<Detail> Details => _details;
 
-    public bool TryRepairDetail(Detail newDetail)
+    public bool TryRepairDetail(Detail? brokenDetail, Detail newDetail)
     {
-        bool isRepaired = false;
+        bool isRepaired;
 
         if (newDetail.IsBroken)
         {
             return false;
-        }
-
-        Detail? brokenDetail = null;
-
-        foreach (var detail in _details)
-        {
-            if (detail.Type == newDetail.Type)
-            {
-                brokenDetail = detail;
-                break;
-            }
         }
 
         if (brokenDetail == null)
