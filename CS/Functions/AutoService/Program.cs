@@ -1,9 +1,11 @@
-﻿class Program
+﻿using System.Collections.ObjectModel;
+
+class Program
 {
     static void Main(string[] args)
     {
         List<Detail> details = DetailFactory.GenerateDetails(10);
-        
+
         foreach (var detail in details)
         {
             detail.PrintInfo();
@@ -13,21 +15,85 @@
 
 class Car
 {
-    
+    private HashSet<Detail> _details;
+
+    public Car(HashSet<Detail> details)
+    {
+        _details = new HashSet<Detail>(details);
+    }
+
+    public IReadOnlyCollection<Detail> Details => _details;
+
+    public bool TryRepairDetail(Detail detailToRepair)
+    {
+        bool isRepaired = false;
+
+        if (detailToRepair.IsBroken)
+        {
+            return false;
+        }
+
+        Detail brokenDetail = null;
+
+        foreach (var detail in _details)
+        {
+            if (detail.Type == detailToRepair.Type)
+            {
+                brokenDetail = detail;
+                break;
+            }
+        }
+
+        if (brokenDetail == null)
+        {
+            return false;
+        }
+
+        _details.Remove(brokenDetail);
+        _details.Add(detailToRepair);
+        isRepaired = true;
+
+        return isRepaired;
+    }
+
+    public void PrintInfo()
+    {
+        foreach (var detail in _details)
+        {
+            detail.PrintInfo();
+        }
+    }
 }
 
-class Detail(DetailType type, int price)
+class Detail
 {
-    public DetailType Type { get; private set; } = type;
-    public int Price { get; private set; } = price;
+    public Detail(DetailType type, int price)
+    {
+        Type = type;
+        Price = price;
+    }
+
+    public DetailType Type { get; }
+    public int Price { get; }
     public bool IsBroken { get; private set; } = false;
 
     public void SetBroken(bool isBroken) => IsBroken = isBroken;
-    
+
     public void PrintInfo()
     {
         Console.WriteLine($"Тип детали - {Type}, стоимость - {Price} рублей." +
                           $"Состояние: сломана - {IsBroken}");
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Detail other) return false;
+        return Type == other.Type && Price == other.Price;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Type, Price);
     }
 }
 
@@ -39,13 +105,13 @@ internal static class DetailFactory
     public static List<Detail> GenerateDetails(int count)
     {
         List<Detail> details = new List<Detail>();
-        
+
         for (int i = 0; i < count; i++)
         {
             Detail detail = GenerateDetail();
             details.Add(detail);
         }
-        
+
         return details;
     }
 
@@ -59,9 +125,9 @@ internal static class DetailFactory
     {
         DetailType type = Utility.GetRandomEnumValue<DetailType>();
         int price = Utility.GetRandomInt(MinPrice, MaxPrice);
-        
+
         Detail detail = new Detail(type, price);
-        
+
         return detail;
     }
 }
@@ -118,13 +184,13 @@ internal static class Utility
 
         return parsedInt;
     }
-    
+
     public static T GetRandomEnumValue<T>() where T : Enum
     {
         Array values = Enum.GetValues(typeof(T));
         int index = GetRandomInt(values.Length);
         var result = (T)values.GetValue(index)!;
-        
+
         return result;
     }
 }
