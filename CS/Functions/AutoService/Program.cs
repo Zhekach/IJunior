@@ -1,10 +1,16 @@
-﻿using System.Collections.ObjectModel;
-
+﻿
 class Program
 {
     static void Main(string[] args)
     {
+        var carFactory = new CarFactory();
+        var cars = carFactory.GenerateCars(5);
         
+        foreach (var car in cars)
+        {
+            car.PrintInfo();
+            Console.WriteLine();
+        }
     }
 }
 
@@ -72,7 +78,9 @@ class CarFactory
         
         for (int i = 0; i < count; i++)
         {
-            cars.Add(GenerateCar());
+            Car car = GenerateCar();
+            BrokeRandomDetails(car);
+            cars.Add(car);
         }
         
         return cars;
@@ -93,6 +101,18 @@ class CarFactory
         Car car = new Car(details);
         
         return car;
+    }
+    
+    private void BrokeRandomDetails(Car car)
+    {
+        int brokenDetailsCount = Utility.GetRandomInt(MinBrokenDetails, car.Details.Count);
+        
+        for (int i = 0; i < brokenDetailsCount; i++)
+        {
+            int index = Utility.GetRandomInt(0, car.Details.Count - 1);
+            Detail detailToBroke = car.Details.ElementAt(index);
+            detailToBroke.SetBroken(true);
+        }
     }
 }
 
