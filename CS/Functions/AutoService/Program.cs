@@ -8,11 +8,17 @@
     }
 }
 
+internal class PlayerInput
+{
+    
+}
+
 internal class AutoService
 {
     private Queue<Car> _cars;
     private List<Detail> _details;
     private int _balance;
+    private Car? _currentCar;
 
     private readonly Mechanic _mechanic;
     private readonly Appraiser _appraiser = new Appraiser();
@@ -25,16 +31,59 @@ internal class AutoService
         _mechanic = new Mechanic(details);
     }
 
+    public void RepairCar()
+    {
+        if (_currentCar == null && _cars.Count > 0)
+        {
+            _currentCar = _cars.Dequeue();
+        }
+        else
+        {
+            Console.WriteLine("Нет автомобилей в очереди.");   
+        }
+    }
+
+    public void RefuseCar()
+    {
+        if (_currentCar == null)
+        {
+            int penalty = _appraiser.CalculatePreRepairPenalty(_cars.Dequeue());
+            _balance -= penalty;
+            Console.WriteLine($"Штраф за отказ от начала ремонта: {penalty} рублей.");
+        }
+        else
+        {
+            int penalty = _appraiser.CalculateInProgressPenalty(_currentCar);
+            _balance -= penalty;
+            Console.WriteLine($"Штраф за отказ от продолжения ремонта: {penalty} рублей.");
+        }
+    }
+
+    public bool TryToRepairDetail(Detail detail)
+    {
+        if (_currentCar == null)
+        {
+            return false;
+        }
+        
+        bool result = _mechanic.TryRepairDetail(_currentCar, detail);
+        int bonus = _appraiser.AppraiseDetailBonus(detail);
+        _balance += bonus;
+        Console.WriteLine($"Начислено {bonus} рублей за ремонт детали {detail.Type}.");
+        
+        return result;
+    }
+
     public void PrintInfo()
     {
         Console.WriteLine($"Баланс: {_balance} рублей.");
 
-        Console.WriteLine("Список автомобилей:");
-        foreach (var car in _cars)
-        {
-            car.PrintInfo();
-        }
-
+        Console.WriteLine($"Автомобилей в очереди: {_cars.Count}");
+        Console.WriteLine("Следующий автомобиль:");
+        
+        Car car = _cars.Peek();
+        car.PrintInfo();
+        
         Console.WriteLine("Список деталей:");
         foreach (var detail in _details)
         {
@@ -50,17 +99,25 @@ internal class Appraiser
     private const float CoefficientDetailPenalty = 1.5f;
     private const float CoefficientDetailBonus = 1.2f;
 
-    public int AppraiseCarPenalty(Car car)
+    public int CalculatePreRepairPenalty(Car car)
     {
         int penalty = Utility.GetRandomInt(MinCarPenalty, MaxCarPenalty);
 
         return penalty;
     }
 
-    public int AppraiseDetailPenalty(Detail detail)
+    public int CalculateInProgressPenalty(Car car)
     {
-        int penalty = (int)(detail.Price * CoefficientDetailPenalty);
-
+        int penalty = 0;
+        
+        foreach (var detail in car.Details)
+        {
+            if (detail.IsBroken)
+            {
+                penalty += (int)(detail.Price * CoefficientDetailPenalty);
+            }
+        }
+        
         return penalty;
     }
 
