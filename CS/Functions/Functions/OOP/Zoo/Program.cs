@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Functions.OOP.Zoo
 {
@@ -8,7 +7,8 @@ namespace Functions.OOP.Zoo
     {
         private static void Main()
         {
-            ZooView zooView = new ZooView(4);
+            ZooFactory zooFactory = new ZooFactory();
+            ZooView zooView = new ZooView(4, zooFactory);
             zooView.ManageZoo();
         }
     }
@@ -16,13 +16,13 @@ namespace Functions.OOP.Zoo
     internal class ZooView
     {
         private readonly Zoo _zoo;
-        
+
         private const ConsoleKey ExitKey = ConsoleKey.Q;
         private const ConsoleKey EnterKey = ConsoleKey.E;
 
-        public ZooView(int cagesCount)
+        public ZooView(int cagesCount, ZooFactory zooFactory)
         {
-            _zoo = ZooFactory.GenerateZoo(cagesCount);
+            _zoo = zooFactory.GenerateZoo(cagesCount);
         }
 
         public void ManageZoo()
@@ -100,11 +100,12 @@ namespace Functions.OOP.Zoo
         }
     }
 
-    internal static class ZooFactory
+    internal class ZooFactory
     {
         private const int AnimalsInCageMaxCount = 5;
+        private readonly CageFactory _cageFactory = new CageFactory();
 
-        public static Zoo GenerateZoo(int cagesCount)
+        public Zoo GenerateZoo(int cagesCount)
         {
             List<Cage> cages = GenerateCages(cagesCount);
             Zoo newZoo = new Zoo(cages);
@@ -112,14 +113,14 @@ namespace Functions.OOP.Zoo
             return newZoo;
         }
 
-        private static List<Cage> GenerateCages(int count)
+        private List<Cage> GenerateCages(int count)
         {
             List<Cage> cages = new List<Cage>();
 
             for (int i = 0; i < count; i++)
             {
                 int animalsCount = Utility.GetRandomInt(1, AnimalsInCageMaxCount);
-                Cage newCage = CageFactory.GenerateCage(animalsCount);
+                Cage newCage = _cageFactory.GenerateCage(animalsCount);
                 cages.Add(newCage);
             }
 
@@ -151,26 +152,28 @@ namespace Functions.OOP.Zoo
         }
     }
 
-    internal static class CageFactory
+    internal class CageFactory
     {
-        private static int s_currentCageId = 1;
+        private int _currentCageId = 1;
+        private readonly AnimalFactory _animalFactory = new AnimalFactory();
 
-        public static Cage GenerateCage(int animalsCount)
+        public Cage GenerateCage(int animalsCount)
         {
             List<Animal> animals = GenerateAnimals(animalsCount);
-            Cage newCage = new Cage(animals, s_currentCageId);
-            s_currentCageId++;
+            Cage newCage = new Cage(animals, _currentCageId);
+            _currentCageId++;
 
             return newCage;
         }
 
-        private static List<Animal> GenerateAnimals(int count)
+        private List<Animal> GenerateAnimals(int count)
         {
             List<Animal> result = new List<Animal>();
-
+            AnimalType type = Utility.GetRandomEnumValue<AnimalType>();
+            
             for (int i = 0; i < count; i++)
             {
-                result.Add(AnimalFactory.GenerateAnimal());
+                result.Add(_animalFactory.GenerateAnimal(type));
             }
 
             return result;
@@ -196,51 +199,55 @@ namespace Functions.OOP.Zoo
         }
     }
 
-    internal static class AnimalFactory
+    internal class AnimalFactory
     {
-        private static readonly Dictionary<string, string> s_typesVoices = new Dictionary<string, string>()
+        private readonly Dictionary<AnimalType, string> _typesVoices = new Dictionary<AnimalType, string>()
         {
-            { "Волк", "Ауф" },
-            { "Рыба", "Молчит как рыба" },
-            { "Кот", "Критикует способ поедания бутерброда" },
-            { "Лиса", "Занята, доедает колобка" },
-            { "Мышь", "Фыр-фыр" },
-            { "Сова", "Безвозмедно, то есть даром" },
-            { "Крокодил", "Крокодит" },
-            { "Собака", "Гав" },
+            { AnimalType.Wolf, "Ауф" },
+            { AnimalType.Fish, "Молчит как рыба" },
+            { AnimalType.Cat, "Критикует способ поедания бутерброда" },
+            { AnimalType.Fox, "Занята, доедает колобка" },
+            { AnimalType.Mouse, "Фыр-фыр" },
+            { AnimalType.Owl, "Безвозмедно, то есть даром" },
+            { AnimalType.Crocodile, "Крокодит" },
+            { AnimalType.Dog, "Гав" }
+        };
+        
+        private readonly Dictionary<AnimalType, string> _animalNamesRu = new Dictionary<AnimalType, string>()
+        {
+            { AnimalType.Wolf, "Волк" },
+            { AnimalType.Fish, "Рыба" },
+            { AnimalType.Cat, "Кот" },
+            { AnimalType.Fox, "Лиса" },
+            { AnimalType.Mouse, "Мышь" },
+            { AnimalType.Owl, "Сова" },
+            { AnimalType.Crocodile, "Крокодил" },
+            { AnimalType.Dog, "Собака" }
         };
 
-        private static readonly Dictionary<AnimalGender, string> s_genders = new Dictionary<AnimalGender, string>()
+        private readonly Dictionary<AnimalGender, string> _genders = new Dictionary<AnimalGender, string>()
         {
             { AnimalGender.Male, "Самец" },
             { AnimalGender.Female, "Самка" },
             { AnimalGender.Other, "Пока непонятно" }
         };
 
-        public static Animal GenerateAnimal()
+        public Animal GenerateAnimal(AnimalType type)
         {
-            string type = GenerateRandomType();
-            string voice = s_typesVoices[type];
+            string typeString = _animalNamesRu[type];
+            string voice = _typesVoices[type];
             string gender = GenerateRandomGender();
 
-            Animal animal = new Animal(type, voice, gender);
+            Animal animal = new Animal(typeString, voice, gender);
 
             return animal;
         }
 
-        private static string GenerateRandomType()
-        {
-            int index = Utility.GetRandomInt(s_typesVoices.Count());
-            var result = s_typesVoices.Keys.ElementAt(index);
-
-            return result;
-        }
-
-        private static string GenerateRandomGender()
+        private string GenerateRandomGender()
         {
             Array genders = Enum.GetValues(typeof(AnimalGender));
             AnimalGender gender = (AnimalGender)genders.GetValue(Utility.GetRandomInt(genders.Length));
-            s_genders.TryGetValue(gender, out string result);
+            _genders.TryGetValue(gender, out string result);
 
             return result;
         }
@@ -252,6 +259,19 @@ namespace Functions.OOP.Zoo
         Female,
         Other
     }
+
+    public enum AnimalType
+    {
+        Wolf,
+        Fish,
+        Cat,
+        Fox,
+        Mouse,
+        Owl,
+        Crocodile,
+        Dog
+    }
+
 
     internal static class Utility
     {
@@ -266,6 +286,15 @@ namespace Functions.OOP.Zoo
         {
             return s_random.Next(minValue, maxValue);
         }
+        
+        public static T GetRandomEnumValue<T>() where T : Enum
+        {
+            Array values = Enum.GetValues(typeof(T));
+            int index = GetRandomInt(values.Length);
+            var result = (T)values.GetValue(index);
+
+            return result;
+        }
 
         public static int ReadInt()
         {
@@ -274,21 +303,14 @@ namespace Functions.OOP.Zoo
 
             while (isIntEntered == false)
             {
-                string enteredString;
-
                 Console.WriteLine("Введите целое число:");
-                enteredString = Console.ReadLine();
+                string enteredString = Console.ReadLine();
 
                 isIntEntered = int.TryParse(enteredString, out parsedInt);
 
-                if (isIntEntered)
-                {
-                    Console.WriteLine($"Введенное число распознанно, это: {parsedInt}");
-                }
-                else
-                {
-                    Console.WriteLine("Вы ввели неверно, попробуйте ещё раз)\n");
-                }
+                Console.WriteLine(isIntEntered
+                    ? $"Введенное число распознанно, это: {parsedInt}"
+                    : "Вы ввели неверно, попробуйте ещё раз)\n");
             }
 
             return parsedInt;
