@@ -4,12 +4,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        List<Detail> details = DetailFactory.GenerateDetails(10);
-
-        foreach (var detail in details)
-        {
-            detail.PrintInfo();
-        }
+        
     }
 }
 
@@ -65,6 +60,42 @@ class Car
     }
 }
 
+class CarFactory
+{
+    private const int MinBrokenDetails = 1;
+    
+    private DetailFactory _detailFactory = new DetailFactory();
+    
+    public List<Car> GenerateCars(int count)
+    {
+        List<Car> cars = new List<Car>();
+        
+        for (int i = 0; i < count; i++)
+        {
+            cars.Add(GenerateCar());
+        }
+        
+        return cars;
+    }
+
+    private Car GenerateCar()
+    {
+        HashSet<Detail> details = new HashSet<Detail>();
+        
+        List<DetailType> detailTypes = new List<DetailType>(
+            (DetailType[])Enum.GetValues(typeof(DetailType)));
+
+        foreach (var detailType in detailTypes)
+        {
+            Detail newDetail = _detailFactory.GenerateDetail(detailType);
+            details.Add(newDetail);
+        }
+        Car car = new Car(details);
+        
+        return car;
+    }
+}
+
 class Detail
 {
     public Detail(DetailType type, int price)
@@ -97,33 +128,27 @@ class Detail
     }
 }
 
-internal static class DetailFactory
+internal class DetailFactory
 {
     private const int MaxPrice = 1000;
     private const int MinPrice = 100;
 
-    public static List<Detail> GenerateDetails(int count)
+    public List<Detail> GenerateRandomDetails(int count)
     {
         List<Detail> details = new List<Detail>();
 
         for (int i = 0; i < count; i++)
         {
-            Detail detail = GenerateDetail();
+            DetailType type = Utility.GetRandomEnumValue<DetailType>();
+            Detail detail = GenerateDetail(type);
             details.Add(detail);
         }
 
         return details;
     }
 
-    public static List<Detail> GenerateUniqueDetails(int count)
+    public Detail GenerateDetail(DetailType type)
     {
-        //TODO реализовать
-        throw new NotImplementedException();
-    }
-
-    private static Detail GenerateDetail()
-    {
-        DetailType type = Utility.GetRandomEnumValue<DetailType>();
         int price = Utility.GetRandomInt(MinPrice, MaxPrice);
 
         Detail detail = new Detail(type, price);
