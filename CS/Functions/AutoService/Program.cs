@@ -9,23 +9,27 @@
 
 internal class Application
 {
-    private readonly AutoService _autoService;
-    private readonly ConsoleUi _consoleUi;
     private const ConsoleKey AgryKey = ConsoleKey.Y;
     private const ConsoleKey RefuseKey = ConsoleKey.N;
     private const ConsoleKey ExitKey = ConsoleKey.Q;
+    private const int RefuseCommandId = 0;
+    private const int ExceptionCommandId = -1; 
+    
+    private readonly AutoService _autoService;
+    private readonly ConsoleUi _consoleUi;
 
     public Application()
     {
         AutoServiceFactory autoServiceFactory = new AutoServiceFactory();
 
         _autoService = autoServiceFactory.GenerateAutoService();
-        _consoleUi = new ConsoleUi(_autoService, AgryKey, RefuseKey, ExitKey);
+        _consoleUi = new ConsoleUi(_autoService, AgryKey, RefuseKey, ExitKey, RefuseCommandId, ExceptionCommandId);
     }
 
     public void Run()
     {
         bool isUserExited = false;
+        
         while (isUserExited == false && _autoService.HasCarsInQueue())
         {
             _consoleUi.ShowMainMenu();
@@ -33,16 +37,14 @@ internal class Application
 
             switch (pressedKey.Key)
             {
-                case AgryKey:
-                    _autoService.RepairCar();
+                case AgryKey: 
                     ChooseDetail();
-                    Console.Clear();
                     break;
+                
                 case RefuseKey:
-                    _autoService.RefuseCar();
-                    _consoleUi.ShowWaitingMenu();
-                    Console.Clear();
+                    RefuseCar();
                     break;
+                 
                 case ExitKey:
                     isUserExited = true;
                     break;
@@ -52,6 +54,8 @@ internal class Application
 
     private void ChooseDetail()
     {
+        _autoService.SetNewCurrentCar();
+        
         Car? car = _autoService.CurrentCar;
 
         if (car == null)
@@ -61,22 +65,40 @@ internal class Application
 
         while (_autoService.HasCurrentCar() && _autoService.HasDetails())
         {
-            int index = _consoleUi.ShowChooseDetailMenu();
+            int detailIndex = _consoleUi.ShowChooseDetailMenu();
 
-            switch (index)
+            switch (detailIndex)
             {
-                case -1:
+                case ExceptionCommandId:
+                    Console.WriteLine("Ошибка, нет машины в ремонте.");
                     break;
-                case 0:
+                
+                case RefuseCommandId:
                     _autoService.RefuseCar();
                     break;
+                
                 default:
-                    Detail detail = car.Details.ElementAt(index - 1);
-                    _autoService.TryToRepairDetail(detail);
-                    _consoleUi.ShowWaitingMenu();
+                    RepairDetail(car, detailIndex);
                     break;
             }
         }
+                
+        Console.Clear();
+    }
+
+    private void RefuseCar()
+    {
+        _autoService.RefuseCar();
+        _consoleUi.ShowWaitingMenu();
+        
+        Console.Clear();
+    }
+
+    private void RepairDetail(Car car, int detailIndex)
+    {
+        Detail detail = car.Details.ElementAt(detailIndex - 1);
+        _autoService.TryToRepairDetail(detail);
+        _consoleUi.ShowWaitingMenu();
     }
 }
 
@@ -86,14 +108,19 @@ internal class ConsoleUi
     private readonly ConsoleKey _agryKey;
     private readonly ConsoleKey _refuseKey;
     private readonly ConsoleKey _exitKey;
+    private readonly int _refuseCommandId;
+    private readonly int _exceptionCommandId;
 
     public ConsoleUi(AutoService autoService,
-        ConsoleKey agryKey, ConsoleKey refuseKey, ConsoleKey exitKey)
+        ConsoleKey agryKey, ConsoleKey refuseKey, ConsoleKey exitKey,
+        int refuseCommandId, int exceptionCommandId)
     {
         _autoService = autoService;
         _agryKey = agryKey;
         _refuseKey = refuseKey;
         _exitKey = exitKey;
+        _refuseCommandId = refuseCommandId;
+        _exceptionCommandId = exceptionCommandId;
     }
 
     public void ShowMainMenu()
@@ -121,8 +148,7 @@ internal class ConsoleUi
 
         if (car == null)
         {
-            Console.WriteLine("Ошибка, нет машины в ремонте.");
-            return -1;
+            return _exceptionCommandId;
         }
 
         Console.WriteLine("Выберите деталь для ремонта:");
@@ -139,7 +165,7 @@ internal class ConsoleUi
             index++;
         }
 
-        Console.WriteLine("Для отказа от ремонта введите \"0\".");
+        Console.WriteLine($"Для отказа от ремонта введите \"{_refuseCommandId}\".");
 
         int result = Utility.ReadInt();
 
@@ -170,7 +196,7 @@ internal class AutoService
     public bool HasDetails() => _details.Count > 0;
     public Car? CurrentCar => _currentCar;
 
-    public void RepairCar()
+    public void SetNewCurrentCar()
     {
         if (_currentCar == null && _cars.Count > 0)
         {
@@ -186,19 +212,20 @@ internal class AutoService
     {
         if (_currentCar == null)
         {
-            int penalty = _appraiser.CalculatePreRepairPenalty(_cars.Dequeue());
+            int penalty = _appraiser.GeneratePreRepairPenalty();
             _balance -= penalty;
             Console.WriteLine($"Штраф за отказ от начала ремонта: {penalty} рублей.");
         }
         else
         {
-            int penalty = _appraiser.CalculateInProgressPenalty(_currentCar);
+            int penalty = _appraiser.GenerateInProgressPenalty(_currentCar);
             _balance -= penalty;
             _currentCar = null;
             Console.WriteLine($"Штраф за отказ от продолжения ремонта: {penalty} рублей.");
         }
     }
 
+    //todo fix unusable
     public bool TryToRepairDetail(Detail brokenDetail)
     {
         if (_currentCar == null || brokenDetail.IsBroken == false)
@@ -206,7 +233,7 @@ internal class AutoService
             return false;
         }
 
-        bool result = _mechanic.TryRepairDetail(_currentCar, brokenDetail, out Detail? newDetail);
+        bool result = _mechanic.TryRepairDetail(_currentCar, brokenDetail);
         int bonus = _appraiser.AppraiseDetailBonus(brokenDetail);
         _balance += bonus;
         Console.WriteLine($"Начислено {bonus} рублей за ремонт детали {brokenDetail.Type}.");
@@ -223,7 +250,6 @@ internal class AutoService
     public void PrintInfo()
     {
         Console.WriteLine($"Баланс: {_balance} рублей.");
-
         Console.WriteLine($"Автомобилей в очереди: {_cars.Count}");
         Console.WriteLine("Следующий автомобиль:");
 
@@ -231,6 +257,7 @@ internal class AutoService
         car.PrintInfo();
 
         Console.WriteLine("Список деталей:");
+        
         foreach (var detail in _details)
         {
             detail.PrintInfo();
@@ -244,15 +271,15 @@ internal class Appraiser
     private const int MaxCarPenalty = 500;
     private const float CoefficientDetailPenalty = 1.5f;
     private const float CoefficientDetailBonus = 1.2f;
-
-    public int CalculatePreRepairPenalty(Car car)
+    
+    public int GeneratePreRepairPenalty()
     {
         int penalty = Utility.GetRandomInt(MinCarPenalty, MaxCarPenalty);
 
         return penalty;
     }
 
-    public int CalculateInProgressPenalty(Car car)
+    public int GenerateInProgressPenalty(Car car)
     {
         int penalty = 0;
 
@@ -301,10 +328,10 @@ internal class Mechanic
         return isCarRepaired;
     }
 
-    public bool TryRepairDetail(Car car, Detail brokenDetail, out Detail? newDetail)
+    public bool TryRepairDetail(Car car, Detail brokenDetail)
     {
         bool isDetailRepaired = false;
-        newDetail = FindDetailToRepair(brokenDetail, _detailsInStock);
+        var newDetail = FindDetailToRepair(brokenDetail, _detailsInStock);
 
         if (newDetail == null ||
             car.TryRepairDetail(brokenDetail, newDetail) == false)
@@ -344,8 +371,8 @@ internal class AutoServiceFactory
     private const int MinCarsCount = 2;
     private const int MaxCarsCount = 4;
 
-    private readonly DetailFactory _detailFactory = new DetailFactory();
-    private readonly CarFactory _carFactory = new CarFactory();
+    private readonly DetailFactory _detailFactory = new ();
+    private readonly CarFactory _carFactory = new ();
 
     public AutoService GenerateAutoService()
     {
@@ -481,7 +508,11 @@ class Detail
 
     public override bool Equals(object? obj)
     {
-        if (obj is not Detail other) return false;
+        if (obj is not Detail other)
+        {
+            return false;
+        }
+        
         return Type == other.Type && Price == other.Price;
     }
 
