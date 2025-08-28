@@ -474,7 +474,7 @@ class CarFactory
         {
             int index = Utility.GetRandomInt(0, car.Details.Count - 1);
             Detail detailToBroke = car.Details.ElementAt(index);
-            detailToBroke.SetBroken(true);
+            detailToBroke.SetBroken();
         }
     }
 }
@@ -491,7 +491,10 @@ class Detail
     public int Price { get; }
     public bool IsBroken { get; private set; } = false;
 
-    public void SetBroken(bool isBroken) => IsBroken = isBroken;
+    public void SetBroken()
+    {
+        IsBroken = true;
+    }
 
     public void PrintInfo()
     {
