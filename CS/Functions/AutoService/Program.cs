@@ -97,7 +97,7 @@ internal class Application
     private void RepairDetail(Car car, int detailIndex)
     {
         Detail detail = car.Details.ElementAt(detailIndex - 1);
-        _autoService.TryToRepairDetail(detail);
+        _autoService.RepairDetail(detail);
         _consoleUi.ShowWaitingMenu();
     }
 }
@@ -224,16 +224,15 @@ internal class AutoService
             Console.WriteLine($"Штраф за отказ от продолжения ремонта: {penalty} рублей.");
         }
     }
-
-    //todo fix unusable
-    public bool TryToRepairDetail(Detail brokenDetail)
+    
+    public void RepairDetail(Detail brokenDetail)
     {
         if (_currentCar == null || brokenDetail.IsBroken == false)
         {
-            return false;
+            return;
         }
 
-        bool result = _mechanic.TryRepairDetail(_currentCar, brokenDetail);
+        _mechanic.RepairDetail(_currentCar, brokenDetail);
         int bonus = _appraiser.AppraiseDetailBonus(brokenDetail);
         _balance += bonus;
         Console.WriteLine($"Начислено {bonus} рублей за ремонт детали {brokenDetail.Type}.");
@@ -243,8 +242,6 @@ internal class AutoService
             _currentCar = null;
             Console.WriteLine("Ремонт машины завершен.");
         }
-
-        return true;
     }
 
     public void PrintInfo()
@@ -328,21 +325,17 @@ internal class Mechanic
         return isCarRepaired;
     }
 
-    public bool TryRepairDetail(Car car, Detail brokenDetail)
+    public void RepairDetail(Car car, Detail brokenDetail)
     {
-        bool isDetailRepaired = false;
         var newDetail = FindDetailToRepair(brokenDetail, _detailsInStock);
 
         if (newDetail == null ||
             car.TryRepairDetail(brokenDetail, newDetail) == false)
         {
-            return isDetailRepaired;
+            return;
         }
 
         _detailsInStock.Remove(brokenDetail);
-        isDetailRepaired = true;
-
-        return isDetailRepaired;
     }
 
     private Detail? FindDetailToRepair(Detail brokenDetail, List<Detail> detailsInStock)
