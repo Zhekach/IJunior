@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OOP", "OOP", "{32248C45-5A4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoService", "AutoService\AutoService.csproj", "{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LINQ", "LINQ", "{39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrininalFinder", "CrininalFinder\CrininalFinder.csproj", "{686AEA10-DEE6-43FF-9290-B1C2FF2863C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +27,10 @@ Global
 		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114}.Release|Any CPU.Build.0 = Release|Any CPU
+		{686AEA10-DEE6-43FF-9290-B1C2FF2863C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{686AEA10-DEE6-43FF-9290-B1C2FF2863C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{686AEA10-DEE6-43FF-9290-B1C2FF2863C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{686AEA10-DEE6-43FF-9290-B1C2FF2863C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +40,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B9A893DA-F2F4-4B1C-A8DA-2CEB858C3114} = {32248C45-5A46-4939-877D-1B7DBA9D96FA}
+		{686AEA10-DEE6-43FF-9290-B1C2FF2863C0} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 	EndGlobalSection
 EndGlobal
