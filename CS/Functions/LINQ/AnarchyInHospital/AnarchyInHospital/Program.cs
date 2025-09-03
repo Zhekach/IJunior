@@ -9,11 +9,10 @@
 
 internal class Application
 {
-    private const int SortByNameCommand = 0;
-    private const int SortByAgeCommand = 1;
-    private const int SortByDiseaseCommand = 2;
+    private const int SortByNameCommand = 1;
+    private const int SortByAgeCommand = 2;
+    private const int SortByDiseaseCommand = 3;
     
-    private readonly PatientSorter _patientSorter;
     private readonly PatientGenerator _patientGenerator;
     
     private ConsoleUI _consoleUi;
@@ -21,7 +20,6 @@ internal class Application
 
     public Application()
     {
-        _patientSorter = new PatientSorter();
         _patientGenerator = new PatientGenerator();
 
         Initialize();
@@ -58,14 +56,14 @@ internal class Application
 
     private void SortPatientsByFullName()
     {
-        var result = _patients.OrderBy(p => p.FullName).ToList();
+        var result = _patients.OrderBy(patient => patient.FullName).ToList();
         
         _consoleUi.PrintPatientsInfo(result, "Отсортированные пациенты по ФИО");
     }
 
     private void SortPatientsByAge()
     {
-        var result = _patients.OrderBy(p => p.Age).ToList();
+        var result = _patients.OrderBy(patient => patient.Age).ToList();
         
         _consoleUi.PrintPatientsInfo(result, "Отсортированные пациенты по возрасту");
     }
@@ -75,7 +73,7 @@ internal class Application
         Console.WriteLine("Введите название заболевания"); 
         string disease = Console.ReadLine();
         
-        var result = _patientSorter.FindByDisease(_patients, disease);
+        var result = _patients.Where(patient => patient.Disease == disease).ToList();
         
         _consoleUi.PrintPatientsInfo(result, "Отсортированные пациенты по заболеванию");
     }
@@ -122,30 +120,6 @@ internal class ConsoleUI
         {
             patient.PrintInfo();
         }
-    }
-}
-
-internal class PatientSorter
-{
-    public List<Patient> SortByFullName(List<Patient> patients)
-    {
-        var result = patients.OrderBy(p => p.FullName).ToList();
-
-        return result;
-    }
-
-    public List<Patient> SortByAge(List<Patient> patients)
-    {
-        var result = patients.OrderBy(p => p.Age).ToList();
-
-        return result;
-    }
-
-    public List<Patient> FindByDisease(List<Patient> patients, string disease)
-    {
-        var result = patients.Where(p => p.Disease == disease).ToList();
-
-        return result;
     }
 }
 
