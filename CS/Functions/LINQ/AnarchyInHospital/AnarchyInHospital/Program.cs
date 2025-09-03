@@ -9,61 +9,120 @@
 
 internal class Application
 {
+    private const int SortByNameCommand = 0;
+    private const int SortByAgeCommand = 1;
+    private const int SortByDiseaseCommand = 2;
+    
     private readonly PatientSorter _patientSorter;
     private readonly PatientGenerator _patientGenerator;
-
+    
+    private ConsoleUI _consoleUi;
     private List<Patient> _patients;
 
     public Application()
     {
         _patientSorter = new PatientSorter();
         _patientGenerator = new PatientGenerator();
+
         Initialize();
     }
-    
+
     public void Run()
     {
-        PrintPatientsInfo(_patients, "Данные обо всех пациентах:");
-
-    }
-    
-    private int HandleIntInput(string description)
-    {
-        Console.WriteLine(description);
-        int result = Utility.ReadInt();
-
-        return result;
-    }
-
-    private string HandleStringInput(string description)
-    {
-        Console.WriteLine(description);
-        string result = Console.ReadLine();
-        
-        return result;
-    }
-
-    private void PrintPatientsInfo(List<Patient> patients, string description)
-    {
-        Console.WriteLine(description);
-        
-        foreach (var patient in patients)
+        while (true)
         {
-            patient.PrintInfo();
+            _consoleUi.ShowMainMenu();
+            
+            int command = Utility.ReadInt();
+            
+            switch (command)
+            {
+                case SortByNameCommand:
+                    SortPatientsByFullName();
+                    break;
+                case SortByAgeCommand:
+                    SortPatientsByAge();
+                    break;
+                case SortByDiseaseCommand:
+                    SortPatientsByDisease();
+                    break;
+                default:
+                    Console.WriteLine("Неверный ввод, попробуйте ещё раз");
+                    break;
+            }
+            
+            Console.WriteLine("\nНажмите Enter, чтобы продолжить...");
+            Console.ReadLine();
         }
     }
 
+    private void SortPatientsByFullName()
+    {
+        var result = _patients.OrderBy(p => p.FullName).ToList();
+        
+        _consoleUi.PrintPatientsInfo(result, "Отсортированные пациенты по ФИО");
+    }
+
+    private void SortPatientsByAge()
+    {
+        var result = _patients.OrderBy(p => p.Age).ToList();
+        
+        _consoleUi.PrintPatientsInfo(result, "Отсортированные пациенты по возрасту");
+    }
+    
+    private void SortPatientsByDisease()
+    {
+        Console.WriteLine("Введите название заболевания"); 
+        string disease = Console.ReadLine();
+        
+        var result = _patientSorter.FindByDisease(_patients, disease);
+        
+        _consoleUi.PrintPatientsInfo(result, "Отсортированные пациенты по заболеванию");
+    }
+    
     private void Initialize()
     {
-        _patients = _patientGenerator.GeneratePatients(5);
+        _patients = _patientGenerator.GeneratePatients(10);
+        
+        _consoleUi = new ConsoleUI(_patients, new []
+        {
+            SortByNameCommand, SortByAgeCommand, SortByDiseaseCommand
+        });
     }
 }
 
 internal class ConsoleUI
 {
-    private 
-    
+    private readonly List<Patient> _patients;
+    private readonly int[] _commandsArray;
+
+    public ConsoleUI(List<Patient> patients, int[] commandsArray)
+    {
+        _patients = patients;
+        _commandsArray = commandsArray;
+    }
+
     public void ShowMainMenu()
+    {
+        Console.Clear();
+        PrintPatientsInfo(_patients, "Все пациенты в больнице");
+
+        Console.WriteLine("Выберите действие:\n" +
+                          $"{_commandsArray[0]} - Отсортировать всех больных по ФИО\n" +
+                          $"{_commandsArray[1]} - Отсортировать всех больных по возрасту\n" +
+                          $"{_commandsArray[2]} - Вывести больных с определенным заболеванием\n");
+    }
+
+    public void PrintPatientsInfo(List<Patient> patients, string description)
+    {
+        Console.Clear();
+        Console.WriteLine(description);
+
+        foreach (var patient in patients)
+        {
+            patient.PrintInfo();
+        }
+    }
 }
 
 internal class PatientSorter
@@ -71,21 +130,21 @@ internal class PatientSorter
     public List<Patient> SortByFullName(List<Patient> patients)
     {
         var result = patients.OrderBy(p => p.FullName).ToList();
-        
+
         return result;
     }
-    
+
     public List<Patient> SortByAge(List<Patient> patients)
     {
         var result = patients.OrderBy(p => p.Age).ToList();
-        
+
         return result;
     }
 
     public List<Patient> FindByDisease(List<Patient> patients, string disease)
     {
         var result = patients.Where(p => p.Disease == disease).ToList();
-        
+
         return result;
     }
 }
@@ -98,7 +157,7 @@ internal class Patient
         Age = age;
         Disease = disease;
     }
-    
+
     public string FullName { get; private set; }
     public int Age { get; private set; }
     public string Disease { get; private set; }
@@ -137,7 +196,7 @@ internal class PatientGenerator
         {
             string name = _fullNames[Utility.GetRandomInt(_fullNames.Count)];
             string disiase = _disiases[Utility.GetRandomInt(_disiases.Count)];
-            int age = Utility.GetRandomInt(_minAge, _maxAge + 1); 
+            int age = Utility.GetRandomInt(_minAge, _maxAge + 1);
 
             patients.Add(new Patient(name, age, disiase));
         }
