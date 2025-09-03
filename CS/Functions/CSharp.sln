@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmnestyNew", "LINQ\Amnesty\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnarchyInHospital", "LINQ\AnarchyInHospital\AnarchyInHospital\AnarchyInHospital.csproj", "{633DC575-0B50-4641-94A5-1383130A3C59}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLayersTop", "LINQ\PlayersTop\PLayersTop\PLayersTop.csproj", "{82BA1565-83D5-433E-A8EF-9DF7B1835E58}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{633DC575-0B50-4641-94A5-1383130A3C59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{633DC575-0B50-4641-94A5-1383130A3C59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{633DC575-0B50-4641-94A5-1383130A3C59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82BA1565-83D5-433E-A8EF-9DF7B1835E58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82BA1565-83D5-433E-A8EF-9DF7B1835E58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82BA1565-83D5-433E-A8EF-9DF7B1835E58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82BA1565-83D5-433E-A8EF-9DF7B1835E58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +61,6 @@ Global
 		{686AEA10-DEE6-43FF-9290-B1C2FF2863C0} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 		{22DCAFF4-2375-4E85-8E4F-0A0C0F014CB4} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 		{633DC575-0B50-4641-94A5-1383130A3C59} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
+		{82BA1565-83D5-433E-A8EF-9DF7B1835E58} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 	EndGlobalSection
 EndGlobal
