@@ -23,7 +23,7 @@ internal class Application
     
     public void Run()
     {
-        PrintAllCriminals();
+        PrintCriminalsInfo(_criminals, "Данные об известных преступниках:");
         
         Console.WriteLine("Введите данные для поиска:");
 
@@ -33,12 +33,7 @@ internal class Application
         
         List<Criminal> selectCriminals = _criminalFinder.SelectCriminals(_criminals, height, weight, nationality);
 
-        Console.WriteLine("Найденные преступники:");
-        
-        foreach (var criminal in selectCriminals)
-        {
-            criminal.PrintInfo();
-        }
+        PrintCriminalsInfo(selectCriminals, "Найденные преступники:");
     }
     
     private int HandleIntInput(string description)
@@ -57,11 +52,11 @@ internal class Application
         return result;
     }
 
-    private void PrintAllCriminals()
+    private void PrintCriminalsInfo(List<Criminal> criminals, string description)
     {
-        Console.WriteLine("Данные об известных преступниках:");
+        Console.WriteLine(description);
         
-        foreach (var criminal in _criminals)
+        foreach (var criminal in criminals)
         {
             criminal.PrintInfo();
         }
@@ -92,12 +87,6 @@ internal class CriminalFinder
 
 internal class Criminal
 {
-    public string FullName { get; private set; }
-    public bool IsArrested { get; private set; }
-    public int Height { get; private set; }
-    public int Weight { get; private set; }
-    public string Nationality { get; private set; }
-    
     public Criminal(string fullName, bool isArrested, int height, int weight, string nationality)
     {
         FullName = fullName;
@@ -106,6 +95,12 @@ internal class Criminal
         Weight = weight;
         Nationality = nationality;
     }
+    
+    public string FullName { get; private set; }
+    public bool IsArrested { get; private set; }
+    public int Height { get; private set; }
+    public int Weight { get; private set; }
+    public string Nationality { get; private set; }
 
     public void PrintInfo()
     {
