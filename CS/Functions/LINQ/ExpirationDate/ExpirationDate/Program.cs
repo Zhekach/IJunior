@@ -50,7 +50,6 @@ internal class Application
         stewCans.Add(new StewCan("Свинина", new DateTime(2021, 2, 25), 2));  // просрочена
         stewCans.Add(new StewCan("Курица", new DateTime(2023, 12, 30), 3));  // годна
         stewCans.Add(new StewCan("Говядина", new DateTime(2022, 7, 14), 1)); // просрочена
-
         
         return stewCans;
     }
