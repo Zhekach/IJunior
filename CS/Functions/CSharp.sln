@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PLayersTop", "LINQ\PlayersT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpirationDate", "LINQ\ExpirationDate\ExpirationDate\ExpirationDate.csproj", "{4C8258DF-3A12-4165-878E-77D3FB703029}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArmingReport", "LINQ\ArmingrReport\ArmingReport\ArmingReport.csproj", "{23444C4C-3F40-4FA5-9C2B-E82792C1AC27}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{4C8258DF-3A12-4165-878E-77D3FB703029}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C8258DF-3A12-4165-878E-77D3FB703029}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C8258DF-3A12-4165-878E-77D3FB703029}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23444C4C-3F40-4FA5-9C2B-E82792C1AC27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23444C4C-3F40-4FA5-9C2B-E82792C1AC27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23444C4C-3F40-4FA5-9C2B-E82792C1AC27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23444C4C-3F40-4FA5-9C2B-E82792C1AC27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,5 +75,6 @@ Global
 		{633DC575-0B50-4641-94A5-1383130A3C59} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 		{82BA1565-83D5-433E-A8EF-9DF7B1835E58} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 		{4C8258DF-3A12-4165-878E-77D3FB703029} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
+		{23444C4C-3F40-4FA5-9C2B-E82792C1AC27} = {39AF43CA-8FC8-4F8E-ACA9-CCCFEDB519F0}
 	EndGlobalSection
 EndGlobal
